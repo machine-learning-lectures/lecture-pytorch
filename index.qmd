@@ -13,6 +13,7 @@ Otwarta platforma laboratoriów dla studentów, prowadząca od tensorów i PCA d
 
 ::: {.hero-actions}
 [Rozpocznij laboratoria](labs/index.qmd)
+[PyTorch Gym](practice/index.qmd)
 [Zobacz roadmapę](#roadmap)
 :::
 :::
@@ -120,6 +121,13 @@ Dyskretny kodbook, nearest neighbor i straight-through estimator.
 
 [Otwórz lab](labs/lab-11-vq-vae.qmd)
 :::
+
+::: {.module-card}
+### PyTorch Gym
+40 zadań implementacyjnych z autosprawdzaniem: od `relu` i `softmax` do attention, LoRA, KV cache i PPO loss.
+
+[Otwórz praktykę](practice/index.qmd)
+:::
 :::
 :::
 
@@ -128,4 +136,5 @@ Dyskretny kodbook, nearest neighbor i straight-through estimator.
 1. **Infrastructure:** Quarto project, GitHub Actions deployment, style system and reproducible Python environment.
 2. **Foundations:** labs 1-6 covering tensors, gradients, PCA, metrics, Isolation Forest and KL divergence.
 3. **Deep generative models:** labs 7-11 covering AE, VAE, GAN, WGAN-GP and optional VQ-VAE.
-4. **Validation:** browser checks, code block review and readability checks across screen sizes.
+4. **PyTorch Gym:** 40 implementation drills with notebook templates, reference solutions and `torch_judge`.
+5. **Validation:** browser checks, code block review and readability checks across screen sizes.

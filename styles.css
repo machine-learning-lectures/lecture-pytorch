@@ -183,6 +183,12 @@ pre code {
   font-size: 0.88rem;
 }
 
+main table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 @media (max-width: 760px) {
   .hero {
     min-height: 68vh;

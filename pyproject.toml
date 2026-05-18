@@ -1,5 +1,5 @@
 [project]
-name = "agh-mat"
+name = "lecture-pytorch"
 version = "0.1.0"
 description = "Interactive Machine Learning and Generative Models labs for Quarto/GitHub Pages."
 readme = "README.md"

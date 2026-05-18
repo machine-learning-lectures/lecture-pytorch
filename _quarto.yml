@@ -1,11 +1,15 @@
 project:
   type: website
   output-dir: _site
+  render:
+    - index.qmd
+    - labs/**/*.qmd
+    - practice/**/*.qmd
 
 website:
   title: "Interactive ML Labs"
-  site-url: "https://machine-learning-lectures.github.io/agh-mat/"
-  repo-url: "https://github.com/machine-learning-lectures/agh-mat"
+  site-url: "https://machine-learning-lectures.github.io/lecture-pytorch/"
+  repo-url: "https://github.com/machine-learning-lectures/lecture-pytorch"
   page-navigation: true
   navbar:
     pinned: true
@@ -14,6 +18,8 @@ website:
         href: index.qmd
       - text: "Labs"
         href: labs/index.qmd
+      - text: "PyTorch Gym"
+        href: practice/index.qmd
       - text: "Roadmap"
         href: index.qmd#roadmap
   sidebar:
@@ -48,6 +54,12 @@ website:
             href: labs/lab-10-wgan-gp.qmd
           - text: "11. VQ-VAE"
             href: labs/lab-11-vq-vae.qmd
+      - section: "PyTorch Gym"
+        contents:
+          - text: "Practice Overview"
+            href: practice/index.qmd
+          - text: "Integrated Path"
+            href: practice/integrated-path.qmd
 
 format:
   html:

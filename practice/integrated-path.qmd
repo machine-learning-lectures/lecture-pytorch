@@ -1,0 +1,37 @@
+---
+title: "Integrated Learning Path"
+---
+
+::: {.lab-question}
+**Cel:** połączyć krótki lab koncepcyjny z precyzyjną praktyką PyTorch. Każdy wiersz mówi, które zadania z `src/templates` najlepiej robić od razu po danym laboratorium.
+:::
+
+## Mapa połączeń
+
+| Lab | Co utrwalamy | Zadania PyTorch Gym | Kryterium opanowania |
+|---|---|---|---|
+| 1. Intro to PyTorch | Tensory, widoki, element-wise ops, autograd | `relu`, `softmax`, `linear` | Umiesz przewidzieć shape, dtype i gradient bez uruchamiania kodu. |
+| 2. Backpropagation | Macierze, MSE, ręczna aktualizacja wag | `linear_regression`, `gradient_clipping`, `adam` | Potrafisz napisać pętlę treningową i wyjaśnić skąd bierze się `grad`. |
+| 3. PCA | Projekcje liniowe i stabilna algebra | `linear_regression`, `weight_init` | Rozumiesz różnicę między rozwiązaniem zamkniętym, optymalizacją i inicjalizacją. |
+| 4. Metrics | Logity, progi decyzyjne, klasyfikacja | `softmax`, `cross_entropy`, `topk_sampling` | Potrafisz przejść od logitów do decyzji i ocenić koszt błędu. |
+| 5. Isolation Forest | Anomalie i scoring | `topk_sampling`, `linear_regression` | Umiesz traktować scoring jako ranking i testować próg decyzyjny. |
+| 6. Entropy and KL | Rozkłady, log-probability, koszt informacji | `cross_entropy`, `softmax`, `dpo_loss` | Wiesz, kiedy liczyć na logits, kiedy na probabilities i gdzie grozi niestabilność numeryczna. |
+| 7. Autoencoder | `nn.Module`, bottleneck, rekonstrukcja | `linear`, `dropout`, `layernorm`, `mlp` | Umiesz zbudować mały model jako kompozycję warstw i kontrolować tryb train/eval. |
+| 8. VAE | Reparameterization, latent space, KL | `gelu`, `rmsnorm`, `gradient_accumulation` | Umiesz odróżnić losowość danych, losowość modelu i gradient przez próbkę. |
+| 9. GAN | Dwie sieci, dwa optimizery, BCE | `cross_entropy`, `adam`, `cosine_lr` | Potrafisz prowadzić dwie osobne aktualizacje bez mieszania gradientów. |
+| 10. WGAN-GP | Gradient penalty i stabilizacja | `gradient_clipping`, `adam`, `gradient_accumulation` | Rozumiesz normę gradientu jako obiekt treningowy, nie tylko diagnostykę. |
+| 11. VQ-VAE | Dyskretne reprezentacje i codebook | `embedding`, `bpe`, `int8_quantization` | Umiesz myśleć o indeksach, lookupach i kwantyzacji jako formach dyskretyzacji. |
+
+## Ścieżka transformerowa
+
+Ta część nie zastępuje obecnych labów generatywnych, tylko je rozszerza. Po przejściu podstaw PyTorcha najlepiej zrobić ją w tej kolejności:
+
+1. `attention` -> `mha` -> `causal_attention`
+2. `rope` -> `kv_cache` -> `gpt2_block`
+3. `cross_attention` -> `gqa` -> `sliding_window`
+4. `linear_attention` -> `flash_attention`
+5. `lora` -> `moe` -> `vit_patch`
+
+## Jak oceniać postęp
+
+Każde zadanie zaliczaj w trzech krokach: testy przechodzą, umiesz narysować przepływ kształtów, umiesz wskazać jedną pułapkę numeryczną lub gradientową. Jeśli brakuje trzeciego kroku, zadanie jest wykonane technicznie, ale jeszcze nie dydaktycznie.

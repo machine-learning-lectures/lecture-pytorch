@@ -22,6 +22,12 @@ Ten kurs jest zaprojektowany jako seria krótkich laboratoriów. Każdy moduł m
 | 10 | Why does Wasserstein training stabilize GANs? | gradient penalty |
 | 11 | What changes when latent space becomes discrete? | VQ, codebook |
 
+## PyTorch Gym practice
+
+Po każdym labie przejdź do [Integrated Learning Path](../practice/integrated-path.qmd). Ta mapa łączy obecne laboratoria z zadaniami z `src/templates`, tak aby student najpierw rozumiał ideę, a potem implementował jej rdzeń samodzielnie.
+
+Najkrótsza ścieżka praktyczna to [PyTorch Gym](../practice/index.qmd): `relu`, `softmax`, `linear`, `cross_entropy`, `linear_regression`, `dropout`, `layernorm`, `attention`, `mha`, `adam`, `gradient_clipping`.
+
 ::: {.callout-note}
 ## Build rule
 The website build does not execute the lab code. This keeps GitHub Pages deployment light while preserving full executable scripts for students.

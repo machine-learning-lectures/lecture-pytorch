@@ -2,9 +2,9 @@
 
 Quarto site for university labs covering PyTorch fundamentals, PCA, anomaly metrics, Isolation Forest, entropy/KL divergence, autoencoders, VAEs, GANs, WGAN-GP, and VQ-VAE.
 
-Repository: https://github.com/machine-learning-lectures/agh-mat
+Repository: https://github.com/machine-learning-lectures/lecture-pytorch
 
-Published site: https://machine-learning-lectures.github.io/agh-mat/
+Published site: https://machine-learning-lectures.github.io/lecture-pytorch/
 
 ## Local preview
 
@@ -20,7 +20,12 @@ The pages show executable Python/PyTorch scripts without evaluating them during 
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -e .
+pip install -e ./src
 ```
+
+## PyTorch Gym
+
+The `src/` directory contains the merged hands-on PyTorch practice track: 40 notebook exercises, reference solutions, and the local `torch_judge` checker. Start with `src/templates/00_welcome.ipynb` locally or from the PyTorch Gym page on the website.
 
 ## GitHub Pages
 
