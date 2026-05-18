@@ -4,6 +4,8 @@ project:
 
 website:
   title: "Interactive ML Labs"
+  site-url: "https://machine-learning-lectures.github.io/agh-mat/"
+  repo-url: "https://github.com/machine-learning-lectures/agh-mat"
   page-navigation: true
   navbar:
     pinned: true

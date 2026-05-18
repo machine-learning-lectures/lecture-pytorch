@@ -2,6 +2,10 @@
 
 Quarto site for university labs covering PyTorch fundamentals, PCA, anomaly metrics, Isolation Forest, entropy/KL divergence, autoencoders, VAEs, GANs, WGAN-GP, and VQ-VAE.
 
+Repository: https://github.com/machine-learning-lectures/agh-mat
+
+Published site: https://machine-learning-lectures.github.io/agh-mat/
+
 ## Local preview
 
 ```powershell
