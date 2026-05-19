@@ -114,12 +114,11 @@ BPE, INT8 quantization, DPO, GRPO i PPO clipped loss.
 
 ## Roadmap {#roadmap}
 
-1. [Podstawy ML i PyTorch](materials/index.qmd#podstawy-ml-i-pytorch)
+1. [Podstawy](materials/index.qmd#podstawy-ml-i-pytorch)
 2. [Modele generatywne](materials/index.qmd#modele-generatywne)
-3. [PyTorch w notebookach](materials/index.qmd#pytorch-w-notebookach)
-4. [Fundamenty tensorów](materials/index.qmd#fundamenty-tensorów)
-5. [Attention i Transformery](materials/index.qmd#attention-i-transformery)
-6. [Architektura i adaptacja](materials/index.qmd#architektura-i-adaptacja)
-7. [Trening i optymalizacja](materials/index.qmd#trening-i-optymalizacja)
-8. [Inferencja i dekodowanie](materials/index.qmd#inferencja-i-dekodowanie)
-9. [Zaawansowane tematy](materials/index.qmd#zaawansowane-tematy)
+3. [PyTorch: Fundamenty](materials/index.qmd#fundamenty-tensorów)
+4. [PyTorch: Attention](materials/index.qmd#attention-i-transformery)
+5. [PyTorch: Architektura](materials/index.qmd#architektura-i-adaptacja)
+6. [PyTorch: Trening](materials/index.qmd#trening-i-optymalizacja)
+7. [PyTorch: Inferencja](materials/index.qmd#inferencja-i-dekodowanie)
+8. [PyTorch: Zaawansowane](materials/index.qmd#zaawansowane-tematy)
