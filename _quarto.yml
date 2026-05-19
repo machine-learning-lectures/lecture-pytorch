@@ -4,7 +4,10 @@ project:
   render:
     - index.qmd
     - materials/*.qmd
+    - labs/index.qmd
     - labs/lab-*.qmd
+    - practice/*.qmd
+    - pytorch/index.qmd
     - pytorch/notebooks/*.qmd
   resources:
     - src/templates/*.ipynb
