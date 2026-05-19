@@ -1,0 +1,128 @@
+---
+title: "17. Implement Dropout"
+description: "HTMLowa wersja notebooka 17_dropout.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Easy`<br>
+**Funkcja/klasa:** `MyDropout`<br>
+**Notebook:** [`17_dropout.ipynb`](../../src/templates/17_dropout.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **Dropout** regularization from scratch.
+
+### Signature
+```python
+class MyDropout(nn.Module):
+    def __init__(self, p: float = 0.5): ...
+    def forward(self, x: Tensor) -> Tensor: ...
+```
+
+### Rules
+- During **training**: zero each element with probability `p`, scale remaining by `1/(1-p)`
+- During **eval**: return input unchanged (identity)
+- Do NOT use `nn.Dropout` or `F.dropout`
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+During training: randomly zero elements with probability p, scale survivors by 1/(1-p). During eval: identity. Use torch.rand_like and compare with p.
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn as nn
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class MyDropout(nn.Module):
+    def __init__(self, p=0.5):
+        super().__init__()
+        pass
+
+    def forward(self, x):
+        pass
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+d = MyDropout(p=0.5)
+d.train()
+x = torch.ones(10)
+print('Train:', d(x))
+d.eval()
+print('Eval: ', d(x))
+```
+
+## Co sprawdza judge
+
+- Eval mode is identity
+- Training: zeros and scaling
+- Drop rate is approximately p
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('dropout')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn as nn
+```
+
+```python
+# ✅ SOLUTION
+
+class MyDropout(nn.Module):
+    def __init__(self, p=0.5):
+        super().__init__()
+        self.p = p
+
+    def forward(self, x):
+        if not self.training or self.p == 0:
+            return x
+        mask = (torch.rand_like(x) > self.p).float()
+        return x * mask / (1 - self.p)
+```
+
+```python
+# Demo
+d = MyDropout(p=0.5)
+d.train()
+x = torch.ones(10)
+print('Train:', d(x))
+d.eval()
+print('Eval: ', d(x))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./16-cross-entropy.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./18-embedding.qmd)
+:::

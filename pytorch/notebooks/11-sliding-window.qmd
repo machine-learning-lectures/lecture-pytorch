@@ -1,0 +1,124 @@
+---
+title: "11. Sliding Window Attention"
+description: "HTMLowa wersja notebooka 11_sliding_window.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Hard`<br>
+**Funkcja/klasa:** `sliding_window_attention`<br>
+**Notebook:** [`11_sliding_window.ipynb`](../../src/templates/11_sliding_window.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **Sliding Window Attention** — used in Longformer, Mistral, etc. for efficient long-context processing.
+
+Each position $i$ can only attend to positions $j$ where $|i - j| \le w$ (the window size).
+
+### Signature
+```python
+def sliding_window_attention(Q, K, V, window_size):
+    # Q, K, V: (batch, seq, d) → output: (batch, seq, d_v)
+    # window_size: int — position i attends to [i-w, i+w]
+```
+
+### Rules
+- Do **NOT** use sparse attention libraries
+- Mask positions outside the window with `-inf`
+- `window_size=0`: only self — output should equal V
+- `window_size >= seq_len`: equivalent to full attention
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Like softmax attention but position i only attends to positions j where |i-j| &lt;= window_size. Mask the rest with -inf.
+:::
+
+## Importy
+
+```python
+import torch
+import math
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def sliding_window_attention(Q, K, V, window_size):
+    pass  # Replace this
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+Q = torch.randn(1, 6, 8)
+K = torch.randn(1, 6, 8)
+V = torch.randn(1, 6, 8)
+
+out = sliding_window_attention(Q, K, V, window_size=1)
+print("Output shape:", out.shape)  # (1, 6, 8)
+
+# window=0 should return V
+out0 = sliding_window_attention(Q, K, V, window_size=0)
+print("window=0 == V?", torch.allclose(out0, V, atol=1e-5))
+```
+
+## Co sprawdza judge
+
+- Output shape
+- window_size=0 — only sees itself
+- Large window equals full attention
+- Distant tokens don't affect output
+- Gradient flow
+
+```python
+from torch_judge import check
+check('sliding_window')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import math
+```
+
+```python
+# ✅ SOLUTION
+
+def sliding_window_attention(Q, K, V, window_size):
+    d_k = K.size(-1)
+    scores = torch.bmm(Q, K.transpose(1, 2)) / math.sqrt(d_k)
+    S = Q.size(1)
+    idx = torch.arange(S, device=Q.device)
+    mask = (idx.unsqueeze(0) - idx.unsqueeze(1)).abs() > window_size
+    scores = scores.masked_fill(mask.unsqueeze(0), float('-inf'))
+    weights = torch.softmax(scores, dim=-1)
+    return torch.bmm(weights, V)
+```
+
+```python
+Q=torch.randn(1,6,8); K=torch.randn(1,6,8); V=torch.randn(1,6,8)
+print('window=0==V?', torch.allclose(sliding_window_attention(Q,K,V,0), V, atol=1e-5))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./10-gqa.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./12-linear-attention.qmd)
+:::

@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "torch-judge"
 dynamic = ["version"]
-description = "Local PyTorch practice judge for the lecture-pytorch course."
+description = "PyTorch coding judge for Jupyter — check implementations against test cases (TorchCode)."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
-    { name = "machine-learning-lectures" }
+    { name = "duoan" }
 ]
-keywords = ["pytorch", "jupyter", "notebook", "judge", "education", "practice"]
+keywords = ["pytorch", "jupyter", "notebook", "judge", "torchcode", "interview", "practice"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Education",
@@ -35,7 +35,7 @@ dev = [
 
 [tool.setuptools.packages.find]
 include = ["torch_judge*"]
-exclude = ["templates*", "solutions*"]
+exclude = ["labextension*", "scripts*", "templates*", "solutions*", "jupyter_config*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "torch_judge._version.__version__"}

@@ -8,14 +8,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from torch_judge.tasks import list_tasks
+from torch_judge.tasks import list_tasks, TASKS
 
 PROGRESS_PATH = os.environ.get("PROGRESS_PATH", "data/progress.json")
 
 _COLORS = {
-    "solved": "\033[92m[ok]",
-    "attempted": "\033[93m[try]",
-    "todo": "\033[90m[todo]",
+    "solved": "\033[92m✅",     # green
+    "attempted": "\033[93m🔧",  # yellow
+    "todo": "\033[90m⏳",       # gray
 }
 _DIFF_COLORS = {
     "Easy": "\033[92m",
@@ -68,33 +68,28 @@ def status() -> None:
     data = _load()
     tasks = list_tasks()
 
-    solved_count = sum(
-        1 for task_id, _ in tasks if data.get(task_id, {}).get("status") == "solved"
-    )
+    solved_count = sum(1 for t_id, _ in tasks if data.get(t_id, {}).get("status") == "solved")
     total = len(tasks)
 
-    print(f"\n{'-' * 56}")
-    print(f"  PyTorch Gym Progress: {solved_count}/{total} solved")
-    print(f"{'-' * 56}")
+    print(f"\n{'─' * 56}")
+    print(f"  🔥 TorchCode Progress: {solved_count}/{total} solved")
+    print(f"{'─' * 56}")
 
     for task_id, task in tasks:
         entry = data.get(task_id, {})
-        state = entry.get("status", "todo")
-        icon = _COLORS.get(state, _COLORS["todo"])
-        difficulty = task["difficulty"]
-        diff_color = _DIFF_COLORS.get(difficulty, "")
+        s = entry.get("status", "todo")
+        icon = _COLORS.get(s, _COLORS["todo"])
+        diff = task["difficulty"]
+        diff_c = _DIFF_COLORS.get(diff, "")
         best = entry.get("best_time")
-        time_text = f"  {best * 1000:.1f}ms" if best else ""
+        time_str = f"  ⚡ {best*1000:.1f}ms" if best else ""
         attempts = entry.get("attempts", 0)
-        attempts_text = f"  ({attempts} attempts)" if attempts else ""
+        att_str = f"  ({attempts} attempts)" if attempts else ""
 
-        print(
-            f"  {icon} {task_id:<20s}{_RESET} "
-            f"{diff_color}[{difficulty}]{_RESET}{time_text}{attempts_text}"
-        )
+        print(f"  {icon} {task_id:<20s}{_RESET} {diff_c}[{diff}]{_RESET}{time_str}{att_str}")
         print(f"     {task['title']}")
 
-    print(f"{'-' * 56}\n")
+    print(f"{'─' * 56}\n")
 
 
 def reset_progress() -> None:

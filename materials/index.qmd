@@ -1,0 +1,471 @@
+---
+title: "Indeks materiałów"
+description: "Wspólny indeks klasycznych laboratoriów i notebooków PyTorch."
+---
+
+To jest jedna mapa kursu: najpierw krótkie laboratoria z poprzednich zajęć, potem notebooki PyTorch przerobione na strony HTML do czytania na telefonie.
+
+::: {.callout-note}
+## Tryb czytania
+Karty prowadzą bezpośrednio do materiałów. Klasyczne laboratoria mają krótką intuicję, kod i zadania, a notebooki PyTorch pokazują treść zadania, kroki, testy judge i ukryte rozwiązania referencyjne.
+:::
+
+## Podstawy ML i PyTorch
+
+::: {.notebook-list}
+
+::: {.notebook-item .lab}
+### [1. Intro to PyTorch](../labs/lab-01-pytorch.qmd)
+
+`torch.Tensor`, `autograd`
+
+<p>Tensory, widoki, operacje wektorowe i gradienty.</p>
+:::
+
+::: {.notebook-item .lab}
+### [2. Backpropagation](../labs/lab-02-backprop.qmd)
+
+raw tensor matmul
+
+<p>Ręczne gradienty dla mnożenia macierzy i weryfikacja autograd.</p>
+:::
+
+::: {.notebook-item .lab}
+### [3. PCA](../labs/lab-03-pca.qmd)
+
+`torch.linalg.svd`
+
+<p>Centrowanie danych, SVD i wariancja wyjaśniona.</p>
+:::
+
+::: {.notebook-item .lab}
+### [4. Metrics](../labs/lab-04-metrics.qmd)
+
+precision, recall, `F_beta`
+
+<p>Precision, recall i F-beta przy niezbalansowanych klasach.</p>
+:::
+
+::: {.notebook-item .lab}
+### [5. Isolation Forest](../labs/lab-05-isolation-forest.qmd)
+
+`IsolationForest`
+
+<p>Izolowanie anomalii krótkimi ścieżkami w losowych drzewach.</p>
+:::
+
+::: {.notebook-item .lab}
+### [6. Entropy and KL](../labs/lab-06-entropy-kl.qmd)
+
+entropy, KL
+
+<p>Niepewność rozkładu i koszt użycia przybliżenia.</p>
+:::
+
+:::
+
+## Modele generatywne
+
+::: {.notebook-list}
+
+::: {.notebook-item .lab}
+### [7. Autoencoder](../labs/lab-07-autoencoder.qmd)
+
+`nn.Module`, MSE
+
+<p>Bottleneck, rekonstrukcja i wykrywanie anomalii.</p>
+:::
+
+::: {.notebook-item .lab}
+### [8. VAE](../labs/lab-08-vae.qmd)
+
+VAE, ELBO
+
+<p>Reparameterization trick, ELBO i generowanie próbek.</p>
+:::
+
+::: {.notebook-item .lab}
+### [9. GAN](../labs/lab-09-gan.qmd)
+
+GAN, BCE
+
+<p>Dwóch optymalizatorów: generator kontra dyskryminator.</p>
+:::
+
+::: {.notebook-item .lab}
+### [10. WGAN-GP](../labs/lab-10-wgan-gp.qmd)
+
+gradient penalty
+
+<p>Wasserstein distance i gradient penalty.</p>
+:::
+
+::: {.notebook-item .lab}
+### [11. VQ-VAE](../labs/lab-11-vq-vae.qmd)
+
+VQ, codebook
+
+<p>Dyskretny codebook, nearest neighbor i straight-through estimator.</p>
+:::
+
+:::
+
+## PyTorch w notebookach
+
+Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kodu podczas budowania strony i z rozwiązaniami schowanymi do samokontroli.
+
+### Fundamenty tensorów
+
+::: {.notebook-list}
+
+::: {.notebook-item .easy}
+#### [01. Implement ReLU](../pytorch/notebooks/01-relu.qmd)
+
+`Easy` · `relu`
+
+<p>ReLU(x) = max(0, x). Think about element-wise comparison with zero.</p>
+:::
+
+::: {.notebook-item .easy}
+#### [02. Implement Softmax](../pytorch/notebooks/02-softmax.qmd)
+
+`Easy` · `my_softmax`
+
+<p>softmax(x)_i = exp(x_i) / sum(exp(x_j)). Subtract max(x) first for numerical stability.</p>
+:::
+
+::: {.notebook-item .easy}
+#### [16. Cross-Entropy Loss](../pytorch/notebooks/16-cross-entropy.qmd)
+
+`Easy` · `cross_entropy_loss`
+
+<p>log_probs = logits - logsumexp(logits, dim=-1, keepdim=True). Loss = -log_probs[arange(B), targets].mean(). Subtract max for stability (logsumexp handles this).</p>
+:::
+
+::: {.notebook-item .easy}
+#### [17. Implement Dropout](../pytorch/notebooks/17-dropout.qmd)
+
+`Easy` · `MyDropout`
+
+<p>During training: randomly zero elements with probability p, scale survivors by 1/(1-p). During eval: identity. Use torch.rand_like and compare with p.</p>
+:::
+
+::: {.notebook-item .easy}
+#### [18. Embedding Layer](../pytorch/notebooks/18-embedding.qmd)
+
+`Easy` · `MyEmbedding`
+
+<p>Store a weight matrix of shape (num_embeddings, embedding_dim) as nn.Parameter. Forward = weight[indices].</p>
+:::
+
+::: {.notebook-item .easy}
+#### [19. GELU Activation](../pytorch/notebooks/19-gelu.qmd)
+
+`Easy` · `my_gelu`
+
+<p>Exact: x * 0.5 * (1 + erf(x / sqrt(2))). Or approximate: 0.5*x*(1+tanh(sqrt(2/pi)*(x+0.044715*x^3))).</p>
+:::
+
+::: {.notebook-item .easy}
+#### [20. Kaiming Initialization](../pytorch/notebooks/20-weight-init.qmd)
+
+`Easy` · `kaiming_init`
+
+<p>For fan_in mode: std = sqrt(2 / fan_in) where fan_in = weight.shape[1]. Fill with normal(0, std). Return the tensor.</p>
+:::
+
+::: {.notebook-item .easy}
+#### [21. Gradient Norm Clipping](../pytorch/notebooks/21-gradient-clipping.qmd)
+
+`Easy` · `clip_grad_norm`
+
+<p>Total norm = sqrt(sum(p.grad.norm()^2)). If total &gt; max_norm, scale all grads by max_norm/total. Return original total norm.</p>
+:::
+
+::: {.notebook-item .easy}
+#### [31. Gradient Accumulation](../pytorch/notebooks/31-gradient-accumulation.qmd)
+
+`Easy` · `accumulated_step`
+
+<p>Zero grads once. For each micro-batch: forward, loss/n_batches, backward. Then optimizer.step(). The loss scaling ensures accumulated grads match a single large batch.</p>
+:::
+
+::: {.notebook-item .medium}
+#### [40. Linear Regression](../pytorch/notebooks/40-linear-regression.qmd)
+
+`Medium` · `LinearRegression`
+
+<p>Closed-form: augment X with ones column, solve w = (X^T X)^{-1} X^T y via torch.linalg.lstsq. Gradient descent: grad_w = (2/N) * X^T @ (pred - y), update w -= lr * grad_w. nn.Linear: create nn.Linear(D, 1), use MSELoss + optimizer.step() loop.</p>
+:::
+
+::: {.notebook-item .medium}
+#### [03. Simple Linear Layer](../pytorch/notebooks/03-linear.qmd)
+
+`Medium` · `SimpleLinear`
+
+<p>y = x @ W^T + b. Initialize weight with Kaiming scaling: randn * (1/sqrt(in_features)).</p>
+:::
+
+::: {.notebook-item .medium}
+#### [04. Implement LayerNorm](../pytorch/notebooks/04-layernorm.qmd)
+
+`Medium` · `my_layer_norm`
+
+<p>Normalize over the last dim: (x - mean) / sqrt(var + eps), then scale by gamma and shift by beta.</p>
+:::
+
+::: {.notebook-item .medium}
+#### [07. Implement BatchNorm](../pytorch/notebooks/07-batchnorm.qmd)
+
+`Medium` · `my_batch_norm`
+
+<p>Implement train/eval BatchNorm: in training, use batch stats over dim=0 and update running_mean/running_var with momentum; in inference, normalize using the running statistics only.</p>
+:::
+
+::: {.notebook-item .medium}
+#### [08. Implement RMSNorm](../pytorch/notebooks/08-rmsnorm.qmd)
+
+`Medium` · `rms_norm`
+
+<p>RMS(x) = sqrt(mean(x^2) + eps). RMSNorm(x) = x / RMS(x) * weight. Simpler than LayerNorm — no mean subtraction.</p>
+:::
+
+::: {.notebook-item .medium}
+#### [15. SwiGLU MLP](../pytorch/notebooks/15-mlp.qmd)
+
+`Medium` · `SwiGLUMLP`
+
+<p>Three nn.Linear layers: gate_proj(d, d_ff), up_proj(d, d_ff), down_proj(d_ff, d). forward(x) = down_proj(silu(gate_proj(x)) * up_proj(x)). SiLU(x) = x * sigmoid(x).</p>
+:::
+
+::: {.notebook-item .medium}
+#### [22. 2D Convolution](../pytorch/notebooks/22-conv2d.qmd)
+
+`Medium` · `my_conv2d`
+
+<p>Extract patches using unfold or nested loops. For each output position, sum(patch * kernel). Support stride and padding (zero-pad with F.pad).</p>
+:::
+
+:::
+
+### Attention i Transformery
+
+::: {.notebook-list}
+
+::: {.notebook-item .medium}
+#### [23. Multi-Head Cross-Attention](../pytorch/notebooks/23-cross-attention.qmd)
+
+`Medium` · `MultiHeadCrossAttention`
+
+<p>Q from decoder (x_q), K/V from encoder (x_kv). Project, reshape to multi-head, compute scaled dot-product attention (no causal mask). Concat heads and project output.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [05. Softmax Attention](../pytorch/notebooks/05-attention.qmd)
+
+`Hard` · `scaled_dot_product_attention`
+
+<p>scores = Q @ K^T / sqrt(d_k), then softmax(scores, dim=-1) @ V. Use torch.bmm for batched matmul.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [06. Multi-Head Attention](../pytorch/notebooks/06-multihead-attention.qmd)
+
+`Hard` · `MultiHeadAttention`
+
+<p>Use nn.Linear for Q/K/V/O projections. d_k = d_model // num_heads. Reshape to (B, heads, S, d_k), SDPA per head, concat, output projection.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [09. Causal Self-Attention](../pytorch/notebooks/09-causal-attention.qmd)
+
+`Hard` · `causal_attention`
+
+<p>Same as softmax attention but mask future positions with -inf before softmax. torch.triu(..., diagonal=1) gives the upper triangle.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [10. Grouped Query Attention](../pytorch/notebooks/10-gqa.qmd)
+
+`Hard` · `GroupQueryAttention`
+
+<p>Like MHA but fewer KV heads. W_k/W_v project to num_kv_heads * d_k dims. Use repeat_interleave to expand KV heads to match Q heads.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [11. Sliding Window Attention](../pytorch/notebooks/11-sliding-window.qmd)
+
+`Hard` · `sliding_window_attention`
+
+<p>Like softmax attention but position i only attends to positions j where |i-j| &lt;= window_size. Mask the rest with -inf.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [12. Linear Self-Attention](../pytorch/notebooks/12-linear-attention.qmd)
+
+`Hard` · `linear_attention`
+
+<p>Feature map: phi(x) = elu(x) + 1. Compute phi(Q) @ (phi(K)^T @ V) instead of softmax(Q @ K^T) @ V. Normalize by phi(Q) @ sum(phi(K)).</p>
+:::
+
+::: {.notebook-item .hard}
+#### [14. KV Cache Attention](../pytorch/notebooks/14-kv-cache.qmd)
+
+`Hard` · `KVCacheAttention`
+
+<p>Project Q/K/V, reshape to (B, num_heads, S, d_k). If cache exists, concat new K/V with cached along dim=2. Apply causal mask during prefill. Return (output, (K_all, V_all)). Cache tensors: (B, num_heads, S_total, d_k).</p>
+:::
+
+::: {.notebook-item .hard}
+#### [24. Rotary Position Embedding (RoPE)](../pytorch/notebooks/24-rope.qmd)
+
+`Hard` · `apply_rope`
+
+<p>Split into pairs (x_even, x_odd). Compute angles = pos * 1/(10000^(2i/d)). Rotate: [x_e*cos - x_o*sin, x_e*sin + x_o*cos]. Stack and flatten.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [25. Flash Attention (Tiled)](../pytorch/notebooks/25-flash-attention.qmd)
+
+`Hard` · `flash_attention`
+
+<p>Process Q in blocks. For each Q-block, iterate over K/V blocks. Use online softmax: track running max and sum, rescale accumulator when max changes. output = acc / row_sum.</p>
+:::
+
+:::
+
+### Architektura i adaptacja
+
+::: {.notebook-list}
+
+::: {.notebook-item .medium}
+#### [26. LoRA (Low-Rank Adaptation)](../pytorch/notebooks/26-lora.qmd)
+
+`Medium` · `LoRALinear`
+
+<p>Freeze base linear. Add lora_A (rank, in) and lora_B (out, rank) as Parameters. B init to zeros. output = linear(x) + (x @ A^T @ B^T) * (alpha/rank).</p>
+:::
+
+::: {.notebook-item .medium}
+#### [27. ViT Patch Embedding](../pytorch/notebooks/27-vit-patch.qmd)
+
+`Medium` · `PatchEmbedding`
+
+<p>Reshape image into patches: (B, C, H, W) -&gt; (B, num_patches, C*P*P). Then project with nn.Linear(C*P*P, embed_dim). num_patches = (img_size/patch_size)^2.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [13. GPT-2 Transformer Block](../pytorch/notebooks/13-gpt2-block.qmd)
+
+`Hard` · `GPT2Block`
+
+<p>Pre-norm: x = x + attn(ln1(x)), x = x + mlp(ln2(x)). MLP: Linear(d, 4d) -&gt; GELU -&gt; Linear(4d, d). Attention must be causal. Inherit from nn.Module.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [28. Mixture of Experts (MoE)](../pytorch/notebooks/28-moe.qmd)
+
+`Hard` · `MixtureOfExperts`
+
+<p>Router: Linear(d, num_experts) -&gt; topk -&gt; softmax. Each expert: Linear-&gt;ReLU-&gt;Linear. Weighted sum of top-k expert outputs per token.</p>
+:::
+
+:::
+
+### Trening i optymalizacja
+
+::: {.notebook-list}
+
+::: {.notebook-item .medium}
+#### [29. Adam Optimizer](../pytorch/notebooks/29-adam.qmd)
+
+`Medium` · `MyAdam`
+
+<p>Track m (1st moment) and v (2nd moment). m = beta1*m + (1-beta1)*grad, v = beta2*v + (1-beta2)*grad^2. Bias correct: m_hat = m/(1-beta1^t). Update: p -= lr * m_hat / (sqrt(v_hat) + eps).</p>
+:::
+
+::: {.notebook-item .medium}
+#### [30. Cosine LR Scheduler with Warmup](../pytorch/notebooks/30-cosine-lr.qmd)
+
+`Medium` · `cosine_lr_schedule`
+
+<p>Warmup: linear ramp from 0 to max_lr over warmup_steps. Then cosine decay: min_lr + 0.5*(max_lr-min_lr)*(1+cos(pi*progress)).</p>
+:::
+
+:::
+
+### Inferencja i dekodowanie
+
+::: {.notebook-list}
+
+::: {.notebook-item .medium}
+#### [32. Top-k / Top-p Sampling](../pytorch/notebooks/32-topk-sampling.qmd)
+
+`Medium` · `sample_top_k_top_p`
+
+<p>Apply temperature first. For top-k: set logits below the k-th largest to -inf. For top-p: sort, compute cumsum of probs, mask where cumsum &gt; p. Then sample from softmax.</p>
+:::
+
+::: {.notebook-item .medium}
+#### [33. Beam Search Decoding](../pytorch/notebooks/33-beam-search.qmd)
+
+`Medium` · `beam_search`
+
+<p>Maintain beam_width hypotheses. Each step: expand each hypothesis with all tokens, keep top beam_width by total score. Stop when all beams end with eos or max_len reached.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [34. Speculative Decoding](../pytorch/notebooks/34-speculative-decoding.qmd)
+
+`Hard` · `speculative_decode`
+
+<p>For each draft token i: accept with prob min(1, p_target[i,token]/p_draft[i,token]). If rejected, sample from max(0, p_target - p_draft) normalized. Return list of accepted tokens (may include one resampled).</p>
+:::
+
+:::
+
+### Zaawansowane tematy
+
+::: {.notebook-list}
+
+::: {.notebook-item .hard}
+#### [35. Byte-Pair Encoding (BPE)](../pytorch/notebooks/35-bpe.qmd)
+
+`Hard` · `SimpleBPE`
+
+<p>train: split words into chars + &lt;/w&gt;. Iteratively find most frequent adjacent pair, merge it. encode: apply learned merges in order to split text into subwords.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [36. INT8 Quantized Linear](../pytorch/notebooks/36-int8-quantization.qmd)
+
+`Hard` · `Int8Linear`
+
+<p>Per-channel scale = abs(weight).max(dim=1) / 127. Quantize: round(weight/scale).clamp(-128,127).to(int8). Forward: dequantize and matmul.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [37. DPO (Direct Preference Optimization) Loss](../pytorch/notebooks/37-dpo-loss.qmd)
+
+`Hard` · `dpo_loss`
+
+<p>L = -log(sigmoid(beta * ((pi_chosen - ref_chosen) - (pi_rejected - ref_rejected)))). Mean over batch.</p>
+:::
+
+::: {.notebook-item .hard}
+#### [38. GRPO (Group Relative Policy Optimization) Loss](../pytorch/notebooks/38-grpo-loss.qmd)
+
+`Hard` · `grpo_loss`
+
+<p>Per group, normalize rewards: A_i = (r_i - mean_g) / (std_g + eps). Detach A_i from graph, then return -mean(A_i * logps).</p>
+:::
+
+::: {.notebook-item .hard}
+#### [39. PPO (Proximal Policy Optimization) Clipped Loss](../pytorch/notebooks/39-ppo-loss.qmd)
+
+`Hard` · `ppo_loss`
+
+<p>Compute ratio r = exp(new_logps - old_logps_detached). Form unclipped = r * adv_detached and clipped = clamp(r, 1-clip, 1+clip) * adv_detached. Return the negative mean of min(unclipped, clipped). Gradients should flow only through new_logps.</p>
+:::
+
+:::

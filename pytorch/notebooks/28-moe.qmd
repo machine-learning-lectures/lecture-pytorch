@@ -1,0 +1,142 @@
+---
+title: "28. Mixture of Experts (MoE)"
+description: "HTMLowa wersja notebooka 28_moe.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Hard`<br>
+**Funkcja/klasa:** `MixtureOfExperts`<br>
+**Notebook:** [`28_moe.ipynb`](../../src/templates/28_moe.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement a **Mixture of Experts** layer (Mixtral / Switch Transformer style).
+
+### Signature
+```python
+class MixtureOfExperts(nn.Module):
+    def __init__(self, d_model, d_ff, num_experts, top_k=2): ...
+    def forward(self, x: Tensor) -> Tensor:
+        # x: (B, S, D) -> (B, S, D)
+```
+
+### Architecture
+- `self.router`: `nn.Linear(d_model, num_experts)` — gating network
+- `self.experts`: `nn.ModuleList` of MLPs `(Linear→ReLU→Linear)`
+- For each token: select top-k experts, compute weighted sum of their outputs
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Router: Linear(d, num_experts) -&gt; topk -&gt; softmax. Each expert: Linear-&gt;ReLU-&gt;Linear. Weighted sum of top-k expert outputs per token.
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn as nn
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class MixtureOfExperts(nn.Module):
+    def __init__(self, d_model, d_ff, num_experts, top_k=2):
+        super().__init__()
+        pass  # router + experts
+
+    def forward(self, x):
+        pass  # route tokens to top-k experts
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+moe = MixtureOfExperts(32, 64, num_experts=4, top_k=2)
+x = torch.randn(2, 8, 32)
+print('Output:', moe(x).shape)
+print('Params:', sum(p.numel() for p in moe.parameters()))
+```
+
+## Co sprawdza judge
+
+- Output shape
+- Has router and experts
+- Router logits shape
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('moe')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn as nn
+```
+
+```python
+# ✅ SOLUTION
+
+class MixtureOfExperts(nn.Module):
+    def __init__(self, d_model, d_ff, num_experts, top_k=2):
+        super().__init__()
+        self.top_k = top_k
+        self.router = nn.Linear(d_model, num_experts)
+        self.experts = nn.ModuleList([
+            nn.Sequential(nn.Linear(d_model, d_ff), nn.ReLU(), nn.Linear(d_ff, d_model))
+            for _ in range(num_experts)
+        ])
+
+    def forward(self, x):
+        orig_shape = x.shape
+        if x.dim() == 3:
+            B, S, D = x.shape
+            x_flat = x.reshape(-1, D)
+        else:
+            x_flat = x
+        logits = self.router(x_flat)
+        top_vals, top_idx = logits.topk(self.top_k, dim=-1)
+        weights = torch.softmax(top_vals, dim=-1)
+        output = torch.zeros_like(x_flat)
+        for k in range(self.top_k):
+            for e in range(len(self.experts)):
+                mask = (top_idx[:, k] == e)
+                if mask.any():
+                    output[mask] += weights[mask, k:k+1] * self.experts[e](x_flat[mask])
+        return output.reshape(orig_shape)
+```
+
+```python
+# Demo
+moe = MixtureOfExperts(32, 64, num_experts=4, top_k=2)
+x = torch.randn(2, 8, 32)
+print('Output:', moe(x).shape)
+print('Params:', sum(p.numel() for p in moe.parameters()))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./27-vit-patch.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./29-adam.qmd)
+:::

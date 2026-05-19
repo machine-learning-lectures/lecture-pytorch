@@ -1,0 +1,109 @@
+---
+title: "08. Implement RMSNorm"
+description: "HTMLowa wersja notebooka 08_rmsnorm.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `rms_norm`<br>
+**Notebook:** [`08_rmsnorm.ipynb`](../../src/templates/08_rmsnorm.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **Root Mean Square Layer Normalization** — the normalization used in LLaMA, Gemma, etc.
+
+$$\text{RMSNorm}(x) = \frac{x}{\text{RMS}(x)} \cdot w, \quad \text{RMS}(x) = \sqrt{\frac{1}{d}\sum x_i^2 + \epsilon}$$
+
+### Signature
+```python
+def rms_norm(x: torch.Tensor, weight: torch.Tensor, eps: float = 1e-6) -> torch.Tensor:
+    # Normalize over the last dimension. No mean subtraction (unlike LayerNorm).
+```
+
+### Rules
+- Do **NOT** use any built-in norm layers
+- Normalize over `dim=-1`
+- Must support autograd
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+RMS(x) = sqrt(mean(x^2) + eps). RMSNorm(x) = x / RMS(x) * weight. Simpler than LayerNorm — no mean subtraction.
+:::
+
+## Importy
+
+```python
+import torch
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def rms_norm(x, weight, eps=1e-6):
+    pass  # Replace this
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+x = torch.randn(2, 8)
+w = torch.ones(8)
+out = rms_norm(x, w)
+print("Output shape:", out.shape)
+print("RMS of output:", out.pow(2).mean(dim=-1).sqrt())  # should be ~1
+```
+
+## Co sprawdza judge
+
+- Basic behavior
+- With learned weight
+- 3-D input
+- Gradient flow
+
+```python
+from torch_judge import check
+check('rmsnorm')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+```
+
+```python
+# ✅ SOLUTION
+
+def rms_norm(x, weight, eps=1e-6):
+    rms = torch.sqrt(x.pow(2).mean(dim=-1, keepdim=True) + eps)
+    return x / rms * weight
+```
+
+```python
+x = torch.randn(2, 8)
+out = rms_norm(x, torch.ones(8))
+print('RMS of output:', out.pow(2).mean(dim=-1).sqrt())
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./07-batchnorm.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./09-causal-attention.qmd)
+:::

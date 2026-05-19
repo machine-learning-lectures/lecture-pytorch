@@ -1,0 +1,151 @@
+---
+title: "39. PPO (Proximal Policy Optimization) Clipped Loss"
+description: "HTMLowa wersja notebooka 39_ppo_loss.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Hard`<br>
+**Funkcja/klasa:** `ppo_loss`<br>
+**Notebook:** [`39_ppo_loss.ipynb`](../../src/templates/39_ppo_loss.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement the **PPO (Proximal Policy Optimization)** **clipped surrogate loss**.
+
+Given:
+- `new_logps`: current policy log-probs $(B,)$
+- `old_logps`: old policy log-probs $(B,)$
+- `advantages`: advantage estimates $(B,)$
+
+Define the ratio
+
+$$ r_i = \exp(\text{new\_logps}_i - \text{old\_logps}_i). $$
+
+Then compute
+- $L^{\text{unclipped}}_i = r_i A_i$
+- $L^{\text{clipped}}_i = \operatorname{clip}(r_i, 1-\epsilon, 1+\epsilon) A_i$
+
+The loss is the negative batch mean of the elementwise minimum:
+
+$$
+\mathcal{L}_\text{PPO} = -\mathbb{E}_i\big[\min(L^{\text{unclipped}}_i, L^{\text{clipped}}_i)\big].
+$$
+
+Implementation notes: detach `old_logps` and `advantages` so gradients only flow through `new_logps`.
+
+### Signature
+```python
+from torch import Tensor
+
+def ppo_loss(new_logps: Tensor, old_logps: Tensor, advantages: Tensor,
+             clip_ratio: float = 0.2) -> Tensor:
+    """PPO clipped surrogate loss over a batch."""
+```
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Compute ratio r = exp(new_logps - old_logps_detached). Form unclipped = r * adv_detached and clipped = clamp(r, 1-clip, 1+clip) * adv_detached. Return the negative mean of min(unclipped, clipped). Gradients should flow only through new_logps.
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn.functional as F
+from torch import Tensor
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def ppo_loss(new_logps: Tensor, old_logps: Tensor, advantages: Tensor,
+             clip_ratio: float = 0.2) -> Tensor:
+    pass  # -mean(min(r * adv, clamp(r, 1-clip, 1+clip) * adv)) with gradients only through new_logps
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+new_logps = torch.tensor([0.0, -0.2, -0.4, -0.6])
+old_logps = torch.tensor([0.0, -0.1, -0.5, -0.5])
+advantages = torch.tensor([1.0, -1.0, 0.5, -0.5])
+print('Loss:', ppo_loss(new_logps, old_logps, advantages, clip_ratio=0.2))
+```
+
+## Co sprawdza judge
+
+- Basic shape & type
+- Numeric check vs fixed value
+- Gradient flows to new_logps only
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('ppo_loss')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn.functional as F
+from torch import Tensor
+```
+
+```python
+# ✅ SOLUTION
+
+def ppo_loss(new_logps: Tensor, old_logps: Tensor, advantages: Tensor,
+             clip_ratio: float = 0.2) -> Tensor:
+    """PPO clipped surrogate loss.
+
+    new_logps: (B,) current policy log-probs
+    old_logps: (B,) old policy log-probs (treated as constant)
+    advantages: (B,) advantage estimates (treated as constant)
+    returns: scalar loss (Tensor)
+    """
+    # Detach old_logps and advantages so gradients only flow through new_logps
+    old_logps_detached = old_logps.detach()
+    adv_detached = advantages.detach()
+
+    # Importance sampling ratio r = pi_new / pi_old in log-space
+    ratios = torch.exp(new_logps - old_logps_detached)
+
+    # Unclipped and clipped objectives
+    unclipped = ratios * adv_detached
+    clipped = torch.clamp(ratios, 1.0 - clip_ratio, 1.0 + clip_ratio) * adv_detached
+
+    # PPO objective: negative mean of the more conservative objective
+    return -torch.min(unclipped, clipped).mean()
+```
+
+```python
+# Demo
+new_logps = torch.tensor([0.0, -0.2, -0.4, -0.6])
+old_logps = torch.tensor([0.0, -0.1, -0.5, -0.5])
+advantages = torch.tensor([1.0, -1.0, 0.5, -0.5])
+print('Loss:', ppo_loss(new_logps, old_logps, advantages, clip_ratio=0.2))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./38-grpo-loss.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./40-linear-regression.qmd)
+:::

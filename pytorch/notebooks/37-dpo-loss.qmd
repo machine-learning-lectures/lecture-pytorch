@@ -1,0 +1,116 @@
+---
+title: "37. DPO (Direct Preference Optimization) Loss"
+description: "HTMLowa wersja notebooka 37_dpo_loss.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Hard`<br>
+**Funkcja/klasa:** `dpo_loss`<br>
+**Notebook:** [`37_dpo_loss.ipynb`](../../src/templates/37_dpo_loss.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement the **Direct Preference Optimization** loss — the standard loss for LLM alignment.
+
+$$\mathcal{L}_{\text{DPO}} = -\log \sigma\Big(\beta \big[\log\frac{\pi(y_w)}{\text{ref}(y_w)} - \log\frac{\pi(y_l)}{\text{ref}(y_l)}\big]\Big)$$
+
+### Signature
+```python
+def dpo_loss(policy_chosen_logps, policy_rejected_logps,
+             ref_chosen_logps, ref_rejected_logps, beta=0.1) -> Tensor:
+    # All inputs: (B,) log-probabilities
+    # Returns: scalar loss
+```
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+L = -log(sigmoid(beta * ((pi_chosen - ref_chosen) - (pi_rejected - ref_rejected)))). Mean over batch.
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn.functional as F
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def dpo_loss(policy_chosen_logps, policy_rejected_logps,
+             ref_chosen_logps, ref_rejected_logps, beta=0.1):
+    pass  # -log(sigmoid(beta * (chosen_reward - rejected_reward)))
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+chosen = torch.tensor([0.0, 0.0])
+rejected = torch.tensor([-5.0, -5.0])
+ref_c = torch.tensor([-1.0, -1.0])
+ref_r = torch.tensor([-1.0, -1.0])
+print('Loss:', dpo_loss(chosen, rejected, ref_c, ref_r, beta=0.1).item())
+```
+
+## Co sprawdza judge
+
+- Easy pair: small loss
+- Hard pair: large loss
+- Gradient flow
+- Mathematical correctness
+- Beta scaling
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('dpo_loss')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn.functional as F
+```
+
+```python
+# ✅ SOLUTION
+
+def dpo_loss(policy_chosen_logps, policy_rejected_logps,
+             ref_chosen_logps, ref_rejected_logps, beta=0.1):
+    chosen_rewards = beta * (policy_chosen_logps - ref_chosen_logps)
+    rejected_rewards = beta * (policy_rejected_logps - ref_rejected_logps)
+    return -F.logsigmoid(chosen_rewards - rejected_rewards).mean()
+```
+
+```python
+# Demo
+chosen = torch.tensor([0.0, 0.0])
+rejected = torch.tensor([-5.0, -5.0])
+ref_c = torch.tensor([-1.0, -1.0])
+ref_r = torch.tensor([-1.0, -1.0])
+print('Loss:', dpo_loss(chosen, rejected, ref_c, ref_r, beta=0.1).item())
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./36-int8-quantization.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./38-grpo-loss.qmd)
+:::

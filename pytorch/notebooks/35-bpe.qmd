@@ -1,0 +1,161 @@
+---
+title: "35. Byte-Pair Encoding (BPE)"
+description: "HTMLowa wersja notebooka 35_bpe.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Hard`<br>
+**Funkcja/klasa:** `SimpleBPE`<br>
+**Notebook:** [`35_bpe.ipynb`](../../src/templates/35_bpe.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement a simple **BPE tokenizer** — the foundation of GPT/LLaMA tokenization.
+
+### Signature
+```python
+class SimpleBPE:
+    def __init__(self): ...
+    def train(self, corpus: list[str], num_merges: int): ...
+    def encode(self, text: str) -> list[str]: ...
+```
+
+### Algorithm (training)
+1. Split each word into characters + `</w>` end marker
+2. Count all adjacent pairs across the corpus
+3. Merge the most frequent pair into a single token
+4. Repeat for `num_merges` iterations
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+train: split words into chars + &lt;/w&gt;. Iteratively find most frequent adjacent pair, merge it. encode: apply learned merges in order to split text into subwords.
+:::
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class SimpleBPE:
+    def __init__(self):
+        self.merges = []
+
+    def train(self, corpus, num_merges):
+        pass  # iteratively find & merge most frequent pairs
+
+    def encode(self, text):
+        pass  # apply learned merges to split text
+```
+
+## Mini-debug
+
+```python
+# No imports needed
+```
+
+```python
+# 🧪 Debug
+bpe = SimpleBPE()
+bpe.train(['low', 'low', 'low', 'lower', 'newest', 'widest'], num_merges=10)
+print('Merges:', bpe.merges[:5])
+print('Encode:', bpe.encode('low lower'))
+```
+
+## Co sprawdza judge
+
+- Correct number of merges
+- Most frequent pair merged first
+- Encode returns list of strings
+- More merges -> fewer tokens
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('bpe')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+# No imports needed
+```
+
+```python
+# ✅ SOLUTION
+
+class SimpleBPE:
+    def __init__(self):
+        self.merges = []
+
+    def train(self, corpus, num_merges):
+        vocab = {}
+        for word in corpus:
+            symbols = tuple(word) + ('</w>',)
+            vocab[symbols] = vocab.get(symbols, 0) + 1
+        self.merges = []
+        for _ in range(num_merges):
+            pairs = {}
+            for word, freq in vocab.items():
+                for i in range(len(word) - 1):
+                    pair = (word[i], word[i + 1])
+                    pairs[pair] = pairs.get(pair, 0) + freq
+            if not pairs:
+                break
+            best = max(pairs, key=pairs.get)
+            self.merges.append(best)
+            new_vocab = {}
+            for word, freq in vocab.items():
+                new_word = []
+                i = 0
+                while i < len(word):
+                    if i < len(word) - 1 and (word[i], word[i + 1]) == best:
+                        new_word.append(word[i] + word[i + 1])
+                        i += 2
+                    else:
+                        new_word.append(word[i])
+                        i += 1
+                new_vocab[tuple(new_word)] = freq
+            vocab = new_vocab
+
+    def encode(self, text):
+        all_tokens = []
+        for word in text.split():
+            symbols = list(word) + ['</w>']
+            for a, b in self.merges:
+                i = 0
+                while i < len(symbols) - 1:
+                    if symbols[i] == a and symbols[i + 1] == b:
+                        symbols = symbols[:i] + [a + b] + symbols[i + 2:]
+                    else:
+                        i += 1
+            all_tokens.extend(symbols)
+        return all_tokens
+```
+
+```python
+# Demo
+bpe = SimpleBPE()
+bpe.train(['low', 'low', 'low', 'lower', 'newest', 'widest'], num_merges=10)
+print('Merges:', bpe.merges)
+print('Encode:', bpe.encode('low lower newest'))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./34-speculative-decoding.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./36-int8-quantization.qmd)
+:::

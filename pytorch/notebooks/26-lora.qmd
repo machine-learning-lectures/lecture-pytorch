@@ -1,0 +1,133 @@
+---
+title: "26. LoRA (Low-Rank Adaptation)"
+description: "HTMLowa wersja notebooka 26_lora.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `LoRALinear`<br>
+**Notebook:** [`26_lora.ipynb`](../../src/templates/26_lora.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **LoRA** — parameter-efficient fine-tuning for large models.
+
+$$h = W_0 x + \frac{\alpha}{r} B A x$$
+
+### Signature
+```python
+class LoRALinear(nn.Module):
+    def __init__(self, in_features, out_features, rank, alpha=1.0): ...
+    def forward(self, x: Tensor) -> Tensor: ...
+```
+
+### Requirements
+- `self.linear`: frozen `nn.Linear` (weight & bias `requires_grad=False`)
+- `self.lora_A`: `nn.Parameter(rank, in_features)` — random init
+- `self.lora_B`: `nn.Parameter(out_features, rank)` — **zero** init
+- Scaling: `alpha / rank`
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Freeze base linear. Add lora_A (rank, in) and lora_B (out, rank) as Parameters. B init to zeros. output = linear(x) + (x @ A^T @ B^T) * (alpha/rank).
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn as nn
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class LoRALinear(nn.Module):
+    def __init__(self, in_features, out_features, rank, alpha=1.0):
+        super().__init__()
+        pass  # frozen linear + lora_A + lora_B
+
+    def forward(self, x):
+        pass  # base + lora
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+layer = LoRALinear(16, 8, rank=4)
+x = torch.randn(2, 16)
+print('Output:', layer(x).shape)
+print('Trainable:', sum(p.numel() for p in layer.parameters() if p.requires_grad))
+print('Total:    ', sum(p.numel() for p in layer.parameters()))
+```
+
+## Co sprawdza judge
+
+- Base weights frozen
+- LoRA parameter shapes
+- B=0 means output equals base
+- Only LoRA params get gradients
+- Forward computation
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('lora')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn as nn
+```
+
+```python
+# ✅ SOLUTION
+
+class LoRALinear(nn.Module):
+    def __init__(self, in_features, out_features, rank, alpha=1.0):
+        super().__init__()
+        self.linear = nn.Linear(in_features, out_features)
+        self.linear.weight.requires_grad_(False)
+        self.linear.bias.requires_grad_(False)
+        self.lora_A = nn.Parameter(torch.randn(rank, in_features) * 0.01)
+        self.lora_B = nn.Parameter(torch.zeros(out_features, rank))
+        self.scaling = alpha / rank
+
+    def forward(self, x):
+        return self.linear(x) + (x @ self.lora_A.T @ self.lora_B.T) * self.scaling
+```
+
+```python
+# Demo
+layer = LoRALinear(16, 8, rank=4)
+x = torch.randn(2, 16)
+print('Output:', layer(x).shape)
+trainable = sum(p.numel() for p in layer.parameters() if p.requires_grad)
+total = sum(p.numel() for p in layer.parameters())
+print(f'Trainable: {trainable}/{total} ({100*trainable/total:.1f}%)')
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./25-flash-attention.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./27-vit-patch.qmd)
+:::

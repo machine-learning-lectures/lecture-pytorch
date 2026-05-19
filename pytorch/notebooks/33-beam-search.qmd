@@ -1,0 +1,132 @@
+---
+title: "33. Beam Search Decoding"
+description: "HTMLowa wersja notebooka 33_beam_search.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `beam_search`<br>
+**Notebook:** [`33_beam_search.ipynb`](../../src/templates/33_beam_search.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **beam search** — the classic decoding algorithm for sequence generation.
+
+### Signature
+```python
+def beam_search(log_prob_fn, start_token, max_len, beam_width, eos_token) -> list[int]:
+    # log_prob_fn: takes token list, returns (V,) log-probabilities
+    # Returns: best sequence (list of ints)
+```
+
+### Algorithm
+1. Start with `[(0.0, [start_token])]`
+2. Each step: expand each beam with top-k next tokens
+3. Keep top `beam_width` beams by total log-probability
+4. Stop when best beam ends with `eos_token` or `max_len` reached
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Maintain beam_width hypotheses. Each step: expand each hypothesis with all tokens, keep top beam_width by total score. Stop when all beams end with eos or max_len reached.
+:::
+
+## Importy
+
+```python
+import torch
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def beam_search(log_prob_fn, start_token, max_len, beam_width, eos_token):
+    pass  # maintain beams, expand, prune, return best
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+def simple_fn(tokens):
+    lp = torch.full((5,), -10.0)
+    lp[min(len(tokens), 4)] = 0.0
+    return lp
+seq = beam_search(simple_fn, start_token=0, max_len=5, beam_width=2, eos_token=4)
+print('Sequence:', seq)
+```
+
+## Co sprawdza judge
+
+- Returns list starting with start_token
+- Greedy path (beam=1)
+- Beam finds better path than greedy
+- Stops at eos
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('beam_search')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+```
+
+```python
+# ✅ SOLUTION
+
+def beam_search(log_prob_fn, start_token, max_len, beam_width, eos_token):
+    beams = [(0.0, [start_token])]
+    completed = []
+    for _ in range(max_len):
+        candidates = []
+        for score, seq in beams:
+            if seq[-1] == eos_token:
+                completed.append((score, seq))
+                continue
+            log_probs = log_prob_fn(torch.tensor(seq))
+            topk_lp, topk_idx = log_probs.topk(beam_width)
+            for j in range(beam_width):
+                candidates.append((score + topk_lp[j].item(), seq + [topk_idx[j].item()]))
+        if not candidates:
+            break
+        candidates.sort(key=lambda x: x[0], reverse=True)
+        beams = candidates[:beam_width]
+    all_seqs = completed + beams
+    all_seqs.sort(key=lambda x: x[0], reverse=True)
+    return all_seqs[0][1]
+```
+
+```python
+# Demo
+def simple_fn(tokens):
+    lp = torch.full((5,), -10.0)
+    lp[min(len(tokens), 4)] = 0.0
+    return lp
+seq = beam_search(simple_fn, start_token=0, max_len=5, beam_width=2, eos_token=4)
+print('Sequence:', seq)
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./32-topk-sampling.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./34-speculative-decoding.qmd)
+:::

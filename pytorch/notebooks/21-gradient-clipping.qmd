@@ -1,0 +1,119 @@
+---
+title: "21. Gradient Norm Clipping"
+description: "HTMLowa wersja notebooka 21_gradient_clipping.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Easy`<br>
+**Funkcja/klasa:** `clip_grad_norm`<br>
+**Notebook:** [`21_gradient_clipping.ipynb`](../../src/templates/21_gradient_clipping.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **gradient norm clipping** — a training stability technique.
+
+### Signature
+```python
+def clip_grad_norm(parameters, max_norm: float) -> float:
+    # Clip gradients in-place so total norm <= max_norm
+    # Returns the original (unclipped) total norm
+```
+
+### Algorithm
+1. Compute total norm: `sqrt(sum(p.grad.norm()^2 for p in parameters))`
+2. If total > max_norm: scale all grads by `max_norm / total`
+3. Return original total norm
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Total norm = sqrt(sum(p.grad.norm()^2)). If total &gt; max_norm, scale all grads by max_norm/total. Return original total norm.
+:::
+
+## Importy
+
+```python
+import torch
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def clip_grad_norm(parameters, max_norm):
+    pass  # compute total norm, clip if needed, return original norm
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+p = torch.randn(100, requires_grad=True)
+(p * 10).sum().backward()
+print('Before:', p.grad.norm().item())
+orig = clip_grad_norm([p], max_norm=1.0)
+print('After: ', p.grad.norm().item())
+print('Original norm:', orig)
+```
+
+## Co sprawdza judge
+
+- Clips to max_norm
+- Returns original norm
+- No change when norm < max_norm
+- Preserves direction
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('gradient_clipping')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+```
+
+```python
+# ✅ SOLUTION
+
+def clip_grad_norm(parameters, max_norm):
+    parameters = [p for p in parameters if p.grad is not None]
+    total_norm = torch.sqrt(sum(p.grad.norm() ** 2 for p in parameters))
+    clip_coef = max_norm / (total_norm + 1e-6)
+    if clip_coef < 1:
+        for p in parameters:
+            p.grad.mul_(clip_coef)
+    return total_norm.item()
+```
+
+```python
+# Demo
+p = torch.randn(100, requires_grad=True)
+(p * 10).sum().backward()
+print('Before:', p.grad.norm().item())
+orig = clip_grad_norm([p], max_norm=1.0)
+print('After: ', p.grad.norm().item())
+print('Returned:', orig)
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./20-weight-init.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./22-conv2d.qmd)
+:::

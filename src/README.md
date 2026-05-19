@@ -1,47 +1,33 @@
-# PyTorch Gym
+# TorchCode notebooks
 
-This directory contains the notebook practice track used by the
-`lecture-pytorch` course.
+Ten katalog zawiera środowisko JupyterLab do ćwiczenia implementacji operatorów PyTorch oraz automatyczny judge `torch_judge`.
 
-It includes:
+Wersja do czytania na telefonie jest generowana do stron Quarto w katalogu `pytorch/notebooks/` i podpinana pod wspólny indeks `materials/index.qmd`. Notebooki zostają materiałem ćwiczeniowym, a HTML jest materiałem do spokojnego przejścia krok po kroku.
 
-- `templates/` - blank notebooks for solving PyTorch exercises
-- `solutions/` - reference solutions for self-checking
-- `torch_judge/` - local checker used by the notebooks
-
-The notebooks are designed to complement the Quarto course published from the
-repository root. Start with the course pages, then open the matching notebook
-when you want hands-on practice.
-
-## Local Use
-
-Install the judge package in editable mode from the repository root:
-
-```powershell
-pip install -e ./src
-```
-
-Then open the notebooks:
-
-```powershell
-jupyter lab src/templates/00_welcome.ipynb
-```
-
-## Google Colab
-
-The template notebooks install the checker from this repository:
+## Uruchomienie lokalne
 
 ```bash
-pip install -q "git+https://github.com/machine-learning-lectures/lecture-pytorch.git#subdirectory=src"
+make run
 ```
 
-Inside a notebook, use:
+Po starcie otwórz `http://localhost:8888`. Notebooki są kopiowane do `notebooks/`, a puste szablony resetują się przy każdym uruchomieniu kontenera.
 
-```python
-from torch_judge import check, hint, status
+## Jak pracować z notebookiem
 
-check("relu")
-hint("relu")
-status()
+1. Otwórz szablon, na przykład `01_relu.ipynb`.
+2. Przeczytaj opis zadania i sygnaturę funkcji.
+3. Uzupełnij komórkę `YOUR IMPLEMENTATION HERE`.
+4. Uruchom komórkę debugującą.
+5. Uruchom komórkę `check("...")`.
+6. Gdy utkniesz, użyj `hint("...")` albo otwórz notebook z sufiksem `_solution.ipynb`.
+
+## Generowanie stron HTML
+
+Z poziomu katalogu głównego repozytorium:
+
+```powershell
+python scripts\prepare_pytorch_pages.py
+quarto render
 ```
 
+Skrypt usuwa z notebooków elementy chmurowe, aktualizuje strony `pytorch/notebooks/*.qmd` i odświeża wspólny indeks `materials/index.qmd`.

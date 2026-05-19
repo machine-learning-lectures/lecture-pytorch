@@ -1,0 +1,111 @@
+---
+title: "16. Cross-Entropy Loss"
+description: "HTMLowa wersja notebooka 16_cross_entropy.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Easy`<br>
+**Funkcja/klasa:** `cross_entropy_loss`<br>
+**Notebook:** [`16_cross_entropy.ipynb`](../../src/templates/16_cross_entropy.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **cross-entropy loss** from scratch.
+
+$$\text{CE}(x, y) = -\log\frac{e^{x_y}}{\sum_j e^{x_j}}$$
+
+### Signature
+```python
+def cross_entropy_loss(logits: Tensor, targets: Tensor) -> Tensor:
+    # logits: (B, C) float, targets: (B,) long indices
+    # Returns: scalar loss (mean over batch)
+```
+
+### Rules
+- Do NOT use `F.cross_entropy` or `nn.CrossEntropyLoss`
+- Must be numerically stable (use logsumexp trick)
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+log_probs = logits - logsumexp(logits, dim=-1, keepdim=True). Loss = -log_probs[arange(B), targets].mean(). Subtract max for stability (logsumexp handles this).
+:::
+
+## Importy
+
+```python
+import torch
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def cross_entropy_loss(logits, targets):
+    pass  # log_probs = logits - logsumexp(...)
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+logits = torch.randn(4, 10)
+targets = torch.randint(0, 10, (4,))
+print('Loss:', cross_entropy_loss(logits, targets))
+print('Ref: ', torch.nn.functional.cross_entropy(logits, targets))
+```
+
+## Co sprawdza judge
+
+- Matches F.cross_entropy
+- Numerical stability
+- Scalar output
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('cross_entropy')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+```
+
+```python
+# ✅ SOLUTION
+
+def cross_entropy_loss(logits, targets):
+    log_probs = logits - torch.logsumexp(logits, dim=-1, keepdim=True)
+    return -log_probs[torch.arange(targets.shape[0]), targets].mean()
+```
+
+```python
+# Demo
+logits = torch.randn(4, 10)
+targets = torch.randint(0, 10, (4,))
+print('Loss:', cross_entropy_loss(logits, targets).item())
+print('Ref: ', torch.nn.functional.cross_entropy(logits, targets).item())
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./15-mlp.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./17-dropout.qmd)
+:::

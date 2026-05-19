@@ -1,0 +1,121 @@
+---
+title: "32. Top-k / Top-p Sampling"
+description: "HTMLowa wersja notebooka 32_topk_sampling.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `sample_top_k_top_p`<br>
+**Notebook:** [`32_topk_sampling.ipynb`](../../src/templates/32_topk_sampling.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **sampling with top-k and top-p filtering** — the standard LLM decoding strategy.
+
+### Signature
+```python
+def sample_top_k_top_p(logits, top_k=0, top_p=1.0, temperature=1.0) -> int:
+    # logits: (V,) unnormalized log-probabilities
+    # Returns: sampled token index
+```
+
+### Algorithm
+1. Scale by temperature: `logits /= temperature`
+2. Top-k: keep only top-k logits, set rest to `-inf`
+3. Top-p: sort by prob, mask tokens where cumulative prob exceeds p
+4. Sample from filtered distribution
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Apply temperature first. For top-k: set logits below the k-th largest to -inf. For top-p: sort, compute cumsum of probs, mask where cumsum &gt; p. Then sample from softmax.
+:::
+
+## Importy
+
+```python
+import torch
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def sample_top_k_top_p(logits, top_k=0, top_p=1.0, temperature=1.0):
+    pass  # temperature, top-k filter, top-p filter, sample
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+logits = torch.tensor([1.0, 5.0, 2.0, 0.5])
+print('top_k=1:', sample_top_k_top_p(logits.clone(), top_k=1))
+print('top_p=0.5:', sample_top_k_top_p(logits.clone(), top_p=0.5))
+print('temp=0.01:', sample_top_k_top_p(logits.clone(), temperature=0.01))
+```
+
+## Co sprawdza judge
+
+- top_k=1 always returns argmax
+- Low temperature concentrates
+- All tokens reachable (no filtering)
+- Returns valid index
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('topk_sampling')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+```
+
+```python
+# ✅ SOLUTION
+
+def sample_top_k_top_p(logits, top_k=0, top_p=1.0, temperature=1.0):
+    logits = logits / max(temperature, 1e-8)
+    if top_k > 0:
+        top_k_val = logits.topk(top_k).values[-1]
+        logits[logits < top_k_val] = float('-inf')
+    if top_p < 1.0:
+        sorted_logits, sorted_idx = torch.sort(logits, descending=True)
+        probs = torch.softmax(sorted_logits, dim=-1)
+        cumsum = torch.cumsum(probs, dim=-1)
+        mask = (cumsum - probs) > top_p
+        sorted_logits[mask] = float('-inf')
+        logits = torch.empty_like(logits).scatter_(0, sorted_idx, sorted_logits)
+    probs = torch.softmax(logits, dim=-1)
+    return torch.multinomial(probs, 1).item()
+```
+
+```python
+# Demo
+logits = torch.tensor([1.0, 5.0, 2.0, 0.5])
+print('top_k=1:', sample_top_k_top_p(logits.clone(), top_k=1))
+print('top_p=0.5:', sample_top_k_top_p(logits.clone(), top_p=0.5))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./31-gradient-accumulation.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./33-beam-search.qmd)
+:::

@@ -1,0 +1,130 @@
+---
+title: "34. Speculative Decoding"
+description: "HTMLowa wersja notebooka 34_speculative_decoding.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Hard`<br>
+**Funkcja/klasa:** `speculative_decode`<br>
+**Notebook:** [`34_speculative_decoding.ipynb`](../../src/templates/34_speculative_decoding.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement the **acceptance/rejection step** of speculative decoding — a technique for accelerating LLM inference.
+
+### Signature
+```python
+def speculative_decode(target_probs, draft_probs, draft_tokens) -> list[int]:
+    # target_probs: (K, V) from target (large) model
+    # draft_probs: (K, V) from draft (small) model
+    # draft_tokens: (K,) tokens sampled by draft model
+    # Returns: list of accepted tokens (1 to K)
+```
+
+### Algorithm
+For each position i = 0, ..., K-1:
+1. `ratio = target_probs[i, token_i] / draft_probs[i, token_i]`
+2. Accept with probability `min(1, ratio)`
+3. If rejected: sample from `normalize(max(0, target - draft))`, append, and stop
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+For each draft token i: accept with prob min(1, p_target[i,token]/p_draft[i,token]). If rejected, sample from max(0, p_target - p_draft) normalized. Return list of accepted tokens (may include one resampled).
+:::
+
+## Importy
+
+```python
+import torch
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def speculative_decode(target_probs, draft_probs, draft_tokens):
+    pass  # accept/reject loop
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+torch.manual_seed(0)
+probs = torch.softmax(torch.randn(4, 10), dim=-1)
+tokens = torch.tensor([2, 5, 1, 8])
+print('Perfect draft:', speculative_decode(probs, probs, tokens))
+target = torch.softmax(torch.randn(4, 10), dim=-1)
+draft = torch.softmax(torch.randn(4, 10), dim=-1)
+print('Random draft:', speculative_decode(target, draft, tokens))
+```
+
+## Co sprawdza judge
+
+- Perfect draft: all accepted
+- Output length bounded
+- All tokens valid
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('speculative_decoding')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+```
+
+```python
+# ✅ SOLUTION
+
+def speculative_decode(target_probs, draft_probs, draft_tokens):
+    K = len(draft_tokens)
+    accepted = []
+    for i in range(K):
+        t = draft_tokens[i].item()
+        ratio = target_probs[i, t] / max(draft_probs[i, t].item(), 1e-10)
+        if torch.rand(1).item() < min(1.0, ratio.item()):
+            accepted.append(t)
+        else:
+            adjusted = torch.clamp(target_probs[i] - draft_probs[i], min=0)
+            s = adjusted.sum()
+            if s > 0:
+                adjusted = adjusted / s
+            else:
+                adjusted = torch.ones_like(adjusted) / adjusted.shape[0]
+            accepted.append(torch.multinomial(adjusted, 1).item())
+            return accepted
+    return accepted
+```
+
+```python
+# Demo
+torch.manual_seed(0)
+probs = torch.softmax(torch.randn(4, 10), dim=-1)
+tokens = torch.tensor([2, 5, 1, 8])
+print('Perfect draft:', speculative_decode(probs, probs, tokens))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./33-beam-search.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./35-bpe.qmd)
+:::

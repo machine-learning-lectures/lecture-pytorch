@@ -1,0 +1,150 @@
+---
+title: "38. GRPO (Group Relative Policy Optimization) Loss"
+description: "HTMLowa wersja notebooka 38_grpo_loss.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Hard`<br>
+**Funkcja/klasa:** `grpo_loss`<br>
+**Notebook:** [`38_grpo_loss.ipynb`](../../src/templates/38_grpo_loss.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement the **Group Relative Policy Optimization (GRPO)** loss — a group-wise, baseline-subtracted REINFORCE objective commonly used in RLAIF (reinforcement learning from AI feedback).
+
+Given a batch of log-probabilities, scalar rewards, and group ids (one group per prompt), define the within-group normalized advantages:
+
+$$A_i = \frac{r_i - \bar r_{g(i)}}{\text{std}_{g(i)} + \epsilon}$$
+
+where \(\bar r_{g(i)}\) and \(\text{std}_{g(i)}\) are the mean and standard deviation of rewards in the group of example \(i\).
+
+The GRPO loss is then the negative advantage-weighted log-probability:
+
+$$\mathcal{L}_{\text{GRPO}} = -\mathbb{E}_i \big[\,\text{stop\_grad}(A_i)\, \log \pi_\theta(y_i)\big].$$
+
+### Signature
+```python
+from torch import Tensor
+
+def grpo_loss(logps: Tensor, rewards: Tensor, group_ids: Tensor,
+              eps: float = 1e-5) -> Tensor:
+    """GRPO loss over a batch.
+
+    logps: (B,) policy log-probs for each sampled response
+    rewards: (B,) scalar rewards for each response
+    group_ids: (B,) integers, same id = same prompt/group
+    returns: scalar loss (Tensor)
+    """
+```
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Per group, normalize rewards: A_i = (r_i - mean_g) / (std_g + eps). Detach A_i from graph, then return -mean(A_i * logps).
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn.functional as F
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+from torch import Tensor
+
+def grpo_loss(logps: Tensor, rewards: Tensor, group_ids: Tensor,
+              eps: float = 1e-5) -> Tensor:
+    pass  # compute normalized advantages per group and return -mean(adv.detach() * logps)
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+logps = torch.tensor([0.0, -0.5, -1.0, -1.5])
+rewards = torch.tensor([1.0, 0.8, 0.2, 0.0])
+group_ids = torch.tensor([0, 0, 1, 1])
+print('Loss:', grpo_loss(logps, rewards, group_ids).item())
+```
+
+## Co sprawdza judge
+
+- Basic shape & type
+- Numeric check vs reference
+- Gradient flows to logps only
+- Group-wise normalization
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('grpo_loss')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn.functional as F
+from torch import Tensor
+```
+
+```python
+# ✅ SOLUTION
+
+def grpo_loss(logps: Tensor, rewards: Tensor, group_ids: Tensor,
+              eps: float = 1e-5) -> Tensor:
+    """Group Relative Policy Optimization (GRPO) loss.
+
+    logps: (B,) policy log-probs for each sampled response
+    rewards: (B,) scalar rewards for each response
+    group_ids: (B,) integers, same id = same prompt/group
+    returns: scalar loss (Tensor)
+    """
+    # Compute per-group normalized advantages A_i
+    unique_ids = group_ids.unique()
+    advantages = torch.empty_like(rewards)
+    for gid in unique_ids:
+        mask = group_ids == gid
+        r_g = rewards[mask]
+        mean_g = r_g.mean()
+        std_g = r_g.std(unbiased=False)
+        advantages[mask] = (r_g - mean_g) / (std_g + eps)
+
+    # Stop gradient through advantages
+    advantages_detached = advantages.detach()
+
+    # GRPO objective: -E[A_i * logpi_i]
+    return -(advantages_detached * logps).mean()
+```
+
+```python
+# Demo
+logps = torch.tensor([0.0, -0.5, -1.0, -1.5])
+rewards = torch.tensor([1.0, 0.8, 0.2, 0.0])
+group_ids = torch.tensor([0, 0, 1, 1])
+print('Loss:', grpo_loss(logps, rewards, group_ids).item())
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./37-dpo-loss.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./39-ppo-loss.qmd)
+:::

@@ -1,0 +1,131 @@
+---
+title: "24. Rotary Position Embedding (RoPE)"
+description: "HTMLowa wersja notebooka 24_rope.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Hard`<br>
+**Funkcja/klasa:** `apply_rope`<br>
+**Notebook:** [`24_rope.ipynb`](../../src/templates/24_rope.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **RoPE** — the position encoding used in LLaMA, GPT-NeoX, and most modern LLMs.
+
+### Signature
+```python
+def apply_rope(q: Tensor, k: Tensor) -> tuple[Tensor, Tensor]:
+    # q, k: (B, S, D) where D is even
+    # Returns rotated (q, k) with same shape
+```
+
+### Key Idea
+Split each vector into consecutive pairs. Rotate each pair by `θ = pos / 10000^(2i/D)`:
+```
+[x_0, x_1] → [x_0*cosθ - x_1*sinθ, x_0*sinθ + x_1*cosθ]
+```
+This makes `dot(q_rot[i], k_rot[j])` depend only on `i - j` (relative position).
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Split into pairs (x_even, x_odd). Compute angles = pos * 1/(10000^(2i/d)). Rotate: [x_e*cos - x_o*sin, x_e*sin + x_o*cos]. Stack and flatten.
+:::
+
+## Importy
+
+```python
+import torch
+import math
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def apply_rope(q, k):
+    # 1. Compute position angles
+    # 2. Split into even/odd pairs
+    # 3. Apply rotation
+    pass
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+q = torch.randn(1, 8, 16)
+k = torch.randn(1, 8, 16)
+qr, kr = apply_rope(q, k)
+print('Shape preserved:', qr.shape == q.shape)
+print('Norm preserved:', torch.allclose(q.norm(dim=-1), qr.norm(dim=-1), atol=1e-4))
+```
+
+## Co sprawdza judge
+
+- Output shapes
+- Preserves norm
+- Relative position property
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('rope')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import math
+```
+
+```python
+# ✅ SOLUTION
+
+def apply_rope(q, k):
+    B, S, D = q.shape
+    pos = torch.arange(S, device=q.device).unsqueeze(1).float()
+    dim = torch.arange(0, D, 2, device=q.device).float()
+    freqs = 1.0 / (10000.0 ** (dim / D))
+    angles = pos * freqs
+    cos_a = torch.cos(angles)
+    sin_a = torch.sin(angles)
+
+    def rotate(x):
+        x1, x2 = x[..., 0::2], x[..., 1::2]
+        return torch.stack([x1 * cos_a - x2 * sin_a,
+                            x1 * sin_a + x2 * cos_a], dim=-1).flatten(-2)
+
+    return rotate(q), rotate(k)
+```
+
+```python
+# Demo
+q = torch.randn(1, 8, 16)
+k = torch.randn(1, 8, 16)
+qr, kr = apply_rope(q, k)
+print('Shape preserved:', qr.shape == q.shape)
+print('Norm preserved:', torch.allclose(q.norm(dim=-1), qr.norm(dim=-1), atol=1e-4))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./23-cross-attention.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./25-flash-attention.qmd)
+:::

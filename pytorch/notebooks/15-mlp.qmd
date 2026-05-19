@@ -1,0 +1,137 @@
+---
+title: "15. SwiGLU MLP"
+description: "HTMLowa wersja notebooka 15_mlp.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `SwiGLUMLP`<br>
+**Notebook:** [`15_mlp.ipynb`](../../src/templates/15_mlp.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement the **SwiGLU MLP** (feed-forward network) used in modern LLMs like LLaMA.
+
+$$\text{SwiGLU}(x) = \text{down\_proj}\big(\text{SiLU}(\text{gate\_proj}(x)) \odot \text{up\_proj}(x)\big)$$
+
+where $\text{SiLU}(x) = x \cdot \sigma(x)$
+
+### Signature
+```python
+class SwiGLUMLP(nn.Module):
+    def __init__(self, d_model: int, d_ff: int): ...
+    def forward(self, x: torch.Tensor) -> torch.Tensor: ...
+```
+
+### Requirements
+- Inherit from `nn.Module`
+- `self.gate_proj`: `nn.Linear(d_model, d_ff)`
+- `self.up_proj`: `nn.Linear(d_model, d_ff)`
+- `self.down_proj`: `nn.Linear(d_ff, d_model)`
+- Activation: **SiLU** (a.k.a. Swish) — `F.silu` or implement as `x * torch.sigmoid(x)`
+
+### Why SwiGLU?
+Unlike the classic `Linear → ReLU/GELU → Linear` FFN, SwiGLU uses a **gating mechanism**:
+the gate projection controls information flow, while the up projection provides the content.
+This consistently outperforms standard FFNs in practice (PaLM, LLaMA, Mistral all use it).
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Three nn.Linear layers: gate_proj(d, d_ff), up_proj(d, d_ff), down_proj(d_ff, d). forward(x) = down_proj(silu(gate_proj(x)) * up_proj(x)). SiLU(x) = x * sigmoid(x).
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class SwiGLUMLP(nn.Module):
+    def __init__(self, d_model, d_ff):
+        super().__init__()
+        pass  # Initialize gate_proj, up_proj, down_proj
+
+    def forward(self, x):
+        pass  # down_proj(silu(gate_proj(x)) * up_proj(x))
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+mlp = SwiGLUMLP(d_model=64, d_ff=128)
+x = torch.randn(2, 8, 64)
+out = mlp(x)
+print("Output shape:", out.shape)  # (2, 8, 64)
+print("Params:", sum(p.numel() for p in mlp.parameters()))
+```
+
+## Co sprawdza judge
+
+- Parameter shapes
+- Forward output shape
+- Numerical correctness
+- 2-D input
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('mlp')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+```
+
+```python
+# ✅ SOLUTION
+
+class SwiGLUMLP(nn.Module):
+    def __init__(self, d_model, d_ff):
+        super().__init__()
+        self.gate_proj = nn.Linear(d_model, d_ff)
+        self.up_proj = nn.Linear(d_model, d_ff)
+        self.down_proj = nn.Linear(d_ff, d_model)
+
+    def forward(self, x):
+        return self.down_proj(F.silu(self.gate_proj(x)) * self.up_proj(x))
+```
+
+```python
+mlp = SwiGLUMLP(d_model=64, d_ff=128)
+x = torch.randn(2, 8, 64)
+print('Output:', mlp(x).shape)
+print('Params:', sum(p.numel() for p in mlp.parameters()))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./14-kv-cache.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./16-cross-entropy.qmd)
+:::

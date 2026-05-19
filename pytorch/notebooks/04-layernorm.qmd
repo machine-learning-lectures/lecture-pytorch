@@ -1,0 +1,127 @@
+---
+title: "04. Implement LayerNorm"
+description: "HTMLowa wersja notebooka 04_layernorm.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `my_layer_norm`<br>
+**Notebook:** [`04_layernorm.ipynb`](../../src/templates/04_layernorm.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **Layer Normalization** from scratch.
+
+$$\text{LayerNorm}(x) = \gamma \cdot \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}} + \beta$$
+
+where $\mu$ and $\sigma^2$ are computed over the **last dimension**.
+
+### Signature
+```python
+def my_layer_norm(
+    x: torch.Tensor,      # input
+    gamma: torch.Tensor,   # scale (same size as last dim)
+    beta: torch.Tensor,    # shift (same size as last dim)
+    eps: float = 1e-5
+) -> torch.Tensor:
+    ...
+```
+
+### Rules
+- Do **NOT** use `F.layer_norm` or `torch.nn.LayerNorm`
+- Normalize over the last dimension only
+- Must support autograd
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Normalize over the last dim: (x - mean) / sqrt(var + eps), then scale by gamma and shift by beta.
+:::
+
+## Importy
+
+```python
+import torch
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def my_layer_norm(x, gamma, beta, eps=1e-5):
+    pass  # Replace this
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+x = torch.randn(2, 8)
+gamma = torch.ones(8)
+beta = torch.zeros(8)
+
+out = my_layer_norm(x, gamma, beta)
+ref = torch.nn.functional.layer_norm(x, [8], gamma, beta)
+
+print("Your output mean:", out.mean(dim=-1))   # should be ~0
+print("Your output std: ", out.std(dim=-1))     # should be ~1
+print("Match ref?      ", torch.allclose(out, ref, atol=1e-4))
+```
+
+## Co sprawdza judge
+
+- Shape and basic behavior
+- With learned parameters
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check("layernorm")
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+```
+
+```python
+# ✅ SOLUTION
+
+def my_layer_norm(x, gamma, beta, eps=1e-5):
+    mean = x.mean(dim=-1, keepdim=True)
+    var = x.var(dim=-1, keepdim=True, unbiased=False)
+    x_norm = (x - mean) / torch.sqrt(var + eps)
+    return gamma * x_norm + beta
+```
+
+```python
+# Verify
+x = torch.randn(2, 8)
+gamma = torch.ones(8)
+beta = torch.zeros(8)
+out = my_layer_norm(x, gamma, beta)
+ref = torch.nn.functional.layer_norm(x, [8], gamma, beta)
+print("Match ref?", torch.allclose(out, ref, atol=1e-4))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./03-linear.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./05-attention.qmd)
+:::

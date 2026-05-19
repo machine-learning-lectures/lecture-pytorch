@@ -1,0 +1,122 @@
+---
+title: "22. 2D Convolution"
+description: "HTMLowa wersja notebooka 22_conv2d.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `my_conv2d`<br>
+**Notebook:** [`22_conv2d.ipynb`](../../src/templates/22_conv2d.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **2D convolution** from scratch.
+
+### Signature
+```python
+def my_conv2d(x, weight, bias=None, stride=1, padding=0):
+    # x: (B, C_in, H, W), weight: (C_out, C_in, kH, kW)
+    # Returns: (B, C_out, H_out, W_out)
+```
+
+### Rules
+- Do NOT use `F.conv2d` or `nn.Conv2d`
+- Support `stride` and `padding` parameters
+- `F.pad` for zero-padding is allowed
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Extract patches using unfold or nested loops. For each output position, sum(patch * kernel). Support stride and padding (zero-pad with F.pad).
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn.functional as F
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def my_conv2d(x, weight, bias=None, stride=1, padding=0):
+    pass  # extract patches, apply kernel, handle stride/padding
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+x = torch.randn(1, 3, 8, 8)
+w = torch.randn(16, 3, 3, 3)
+print('Output:', my_conv2d(x, w).shape)
+print('Match:', torch.allclose(my_conv2d(x, w), F.conv2d(x, w), atol=1e-4))
+```
+
+## Co sprawdza judge
+
+- Output shape
+- Matches F.conv2d
+- With padding
+- With stride
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('conv2d')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn.functional as F
+```
+
+```python
+# ✅ SOLUTION
+
+def my_conv2d(x, weight, bias=None, stride=1, padding=0):
+    if padding > 0:
+        x = F.pad(x, [padding] * 4)
+    B, C_in, H, W = x.shape
+    C_out, _, kH, kW = weight.shape
+    H_out = (H - kH) // stride + 1
+    W_out = (W - kW) // stride + 1
+    patches = x.unfold(2, kH, stride).unfold(3, kW, stride)
+    out = torch.einsum('bihwjk,oijk->bohw', patches, weight)
+    if bias is not None:
+        out = out + bias.view(1, -1, 1, 1)
+    return out
+```
+
+```python
+# Demo
+x = torch.randn(1, 3, 8, 8)
+w = torch.randn(16, 3, 3, 3)
+print('Output:', my_conv2d(x, w).shape)
+print('Match:', torch.allclose(my_conv2d(x, w), F.conv2d(x, w), atol=1e-4))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./21-gradient-clipping.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./23-cross-attention.qmd)
+:::

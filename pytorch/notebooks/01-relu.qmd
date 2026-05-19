@@ -1,0 +1,114 @@
+---
+title: "01. Implement ReLU"
+description: "HTMLowa wersja notebooka 01_relu.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Easy`<br>
+**Funkcja/klasa:** `relu`<br>
+**Notebook:** [`01_relu.ipynb`](../../src/templates/01_relu.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement the **ReLU** (Rectified Linear Unit) activation function from scratch.
+
+$$\text{ReLU}(x) = \max(0, x)$$
+
+### Signature
+```python
+def relu(x: torch.Tensor) -> torch.Tensor:
+    ...
+```
+
+### Rules
+- Do **NOT** use `torch.relu`, `F.relu`, `torch.clamp`, or any built-in activation
+- Must support autograd (gradients should flow back)
+
+### Example
+```
+Input:  tensor([-2., -1., 0., 1., 2.])
+Output: tensor([ 0.,  0., 0., 1., 2.])
+```
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+ReLU(x) = max(0, x). Think about element-wise comparison with zero.
+:::
+
+## Importy
+
+```python
+import torch
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def relu(x: torch.Tensor) -> torch.Tensor:
+    pass  # Replace this
+```
+
+## Mini-debug
+
+```python
+# 🧪 Test your implementation (feel free to add more debug prints)
+x = torch.tensor([-2., -1., 0., 1., 2.])
+print("Input: ", x)
+print("Output:", relu(x))
+print("Shape: ", relu(x).shape)
+```
+
+## Co sprawdza judge
+
+- Basic values
+- 2-D tensor
+- Gradient check
+- Performance
+
+```python
+# ✅ SUBMIT — Run this cell to check your solution
+from torch_judge import check
+check("relu")
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+```
+
+```python
+# ✅ SOLUTION
+
+def relu(x: torch.Tensor) -> torch.Tensor:
+    return x * (x > 0).float()
+```
+
+```python
+# Verify
+x = torch.tensor([-2., -1., 0., 1., 2.])
+print("Input: ", x)
+print("Output:", relu(x))
+```
+
+</details>
+
+::: {.lesson-nav}
+[Indeks](../../materials/index.qmd) | [Następne →](./02-softmax.qmd)
+:::

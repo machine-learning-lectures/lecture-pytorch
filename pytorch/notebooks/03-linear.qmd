@@ -1,0 +1,126 @@
+---
+title: "03. Simple Linear Layer"
+description: "HTMLowa wersja notebooka 03_linear.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `SimpleLinear`<br>
+**Notebook:** [`03_linear.ipynb`](../../src/templates/03_linear.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement a fully-connected linear layer: **y = xW^T + b**
+
+### Signature
+```python
+class SimpleLinear:
+    def __init__(self, in_features: int, out_features: int): ...
+    def forward(self, x: torch.Tensor) -> torch.Tensor: ...
+```
+
+### Requirements
+- `self.weight`: shape `(out_features, in_features)`, init with `randn * (1/√in_features)`
+- `self.bias`: shape `(out_features,)`, init as zeros
+- Both must have `requires_grad=True`
+- `forward(x)` computes `x @ W^T + b`
+- Do **NOT** use `torch.nn.Linear`
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+y = x @ W^T + b. Initialize weight with Kaiming scaling: randn * (1/sqrt(in_features)).
+:::
+
+## Importy
+
+```python
+import torch
+import math
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class SimpleLinear:
+    def __init__(self, in_features: int, out_features: int):
+        pass  # Initialize weight and bias
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        pass  # Compute y = x @ W^T + b
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+layer = SimpleLinear(8, 4)
+print("W shape:", layer.weight.shape)  # should be (4, 8)
+print("b shape:", layer.bias.shape)    # should be (4,)
+
+x = torch.randn(2, 8)
+y = layer.forward(x)
+print("Output shape:", y.shape)        # should be (2, 4)
+```
+
+## Co sprawdza judge
+
+- Weight & bias shape
+- Forward pass
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check("linear")
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import math
+```
+
+```python
+# ✅ SOLUTION
+
+class SimpleLinear:
+    def __init__(self, in_features: int, out_features: int):
+        self.weight = torch.randn(out_features, in_features) * (1 / math.sqrt(in_features))
+        self.weight.requires_grad_(True)
+        self.bias = torch.zeros(out_features, requires_grad=True)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return x @ self.weight.T + self.bias
+```
+
+```python
+# Verify
+layer = SimpleLinear(8, 4)
+print("W shape:", layer.weight.shape)
+print("b shape:", layer.bias.shape)
+x = torch.randn(2, 8)
+print("Output shape:", layer.forward(x).shape)
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./02-softmax.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./04-layernorm.qmd)
+:::

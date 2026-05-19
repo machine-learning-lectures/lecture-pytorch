@@ -1,0 +1,196 @@
+---
+title: "07. Implement BatchNorm"
+description: "HTMLowa wersja notebooka 07_batchnorm.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `my_batch_norm`<br>
+**Notebook:** [`07_batchnorm.ipynb`](../../src/templates/07_batchnorm.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **Batch Normalization** with both **training** and **inference** behavior.
+
+In training mode, use **batch statistics** and update running estimates:
+
+$$\text{BN}(x) = \gamma \cdot \frac{x - \mu_B}{\sqrt{\sigma_B^2 + \epsilon}} + \beta$$
+
+where $\mu_B$ and $\sigma_B^2$ are the mean and variance computed **across the batch** (dim=0).
+
+In inference mode, use the provided **running mean/var** instead of current batch stats.
+
+### Signature
+```python
+def my_batch_norm(
+    x: torch.Tensor,
+    gamma: torch.Tensor,
+    beta: torch.Tensor,
+    running_mean: torch.Tensor,
+    running_var: torch.Tensor,
+    eps: float = 1e-5,
+    momentum: float = 0.1,
+    training: bool = True,
+) -> torch.Tensor:
+    # x: (N, D) — normalize each feature across all samples in the batch
+    # running_mean, running_var: updated in-place during training; used as-is during inference
+```
+
+### Rules
+- Do **NOT** use `F.batch_norm`, `nn.BatchNorm1d`, etc.
+- Compute batch mean and variance over `dim=0` with `unbiased=False`
+- Update running stats like PyTorch: `running = (1 - momentum) * running + momentum * batch_stat`
+- Use `running_mean` / `running_var` for inference when `training=False`
+- Must support autograd w.r.t. `x`, `gamma`, `beta`（running statistics 应视作 buffer，而不是需要梯度的参数）
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Implement train/eval BatchNorm: in training, use batch stats over dim=0 and update running_mean/running_var with momentum; in inference, normalize using the running statistics only.
+:::
+
+## Importy
+
+```python
+import torch
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def my_batch_norm(
+    x,
+    gamma,
+    beta,
+    running_mean,
+    running_var,
+    eps=1e-5,
+    momentum=0.1,
+    training=True,
+):
+    pass  # Replace this
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+x = torch.randn(8, 4)
+gamma = torch.ones(4)
+beta = torch.zeros(4)
+
+# Running stats typically live on the same device and shape as features
+running_mean = torch.zeros(4)
+running_var = torch.ones(4)
+
+# Training mode: uses batch stats and updates running_mean / running_var
+out_train = my_batch_norm(x, gamma, beta, running_mean, running_var, training=True)
+print("[Train] Output shape:", out_train.shape)
+print("[Train] Column means:", out_train.mean(dim=0))   # should be ~0
+print("[Train] Column stds: ", out_train.std(dim=0))    # should be ~1
+print("Updated running_mean:", running_mean)
+print("Updated running_var:", running_var)
+
+# Inference mode: uses running_mean / running_var only
+out_eval = my_batch_norm(x, gamma, beta, running_mean, running_var, training=False)
+print("[Eval] Output shape:", out_eval.shape)
+```
+
+## Co sprawdza judge
+
+- Training mode — zero mean per feature
+- Training mode — numerical correctness and running stats update
+- Inference mode — uses running statistics
+- Gradient flow w.r.t inputs and affine params
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check("batchnorm")
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+```
+
+```python
+# ✅ SOLUTION
+
+import torch
+
+def my_batch_norm(
+    x,
+    gamma,
+    beta,
+    running_mean,
+    running_var,
+    eps=1e-5,
+    momentum=0.1,
+    training=True,
+):
+    """BatchNorm with train/eval behavior and running stats.
+
+    - Training: use batch stats, update running_mean / running_var in-place.
+    - Inference: use running_mean / running_var as-is.
+    """
+    if training:
+        batch_mean = x.mean(dim=0)
+        batch_var = x.var(dim=0, unbiased=False)
+
+        # Update running statistics in-place. Detach to avoid tracking gradients.
+        running_mean.mul_(1 - momentum).add_(momentum * batch_mean.detach())
+        running_var.mul_(1 - momentum).add_(momentum * batch_var.detach())
+
+        mean = batch_mean
+        var = batch_var
+    else:
+        mean = running_mean
+        var = running_var
+
+    x_norm = (x - mean) / torch.sqrt(var + eps)
+    return gamma * x_norm + beta
+```
+
+```python
+# Verify
+x = torch.randn(8, 4)
+gamma = torch.ones(4)
+beta = torch.zeros(4)
+
+running_mean = torch.zeros(4)
+running_var = torch.ones(4)
+
+# Training behavior: normalize with batch stats and update running stats
+out_train = my_batch_norm(x, gamma, beta, running_mean, running_var, training=True)
+print("[Train] Column means:", out_train.mean(dim=0))
+print("[Train] Column stds: ", out_train.std(dim=0))
+print("Updated running_mean:", running_mean)
+print("Updated running_var:", running_var)
+
+# Inference behavior: use running_mean / running_var only
+out_eval = my_batch_norm(x, gamma, beta, running_mean, running_var, training=False)
+print("[Eval] Column means (using running stats):", out_eval.mean(dim=0))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./06-multihead-attention.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./08-rmsnorm.qmd)
+:::

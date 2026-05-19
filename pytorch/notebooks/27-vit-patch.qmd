@@ -1,0 +1,130 @@
+---
+title: "27. ViT Patch Embedding"
+description: "HTMLowa wersja notebooka 27_vit_patch.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `PatchEmbedding`<br>
+**Notebook:** [`27_vit_patch.ipynb`](../../src/templates/27_vit_patch.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement the **patch embedding** layer from Vision Transformer (ViT).
+
+### Signature
+```python
+class PatchEmbedding(nn.Module):
+    def __init__(self, img_size, patch_size, in_channels, embed_dim): ...
+    def forward(self, x: Tensor) -> Tensor:
+        # x: (B, C, H, W)
+        # Returns: (B, num_patches, embed_dim)
+```
+
+### Algorithm
+1. Reshape image into non-overlapping patches: `(B, C, H, W)` → `(B, N, C*P*P)`
+2. Project each patch: `nn.Linear(C*P*P, embed_dim)`
+3. `num_patches = (img_size // patch_size) ** 2`
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Reshape image into patches: (B, C, H, W) -&gt; (B, num_patches, C*P*P). Then project with nn.Linear(C*P*P, embed_dim). num_patches = (img_size/patch_size)^2.
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn as nn
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class PatchEmbedding(nn.Module):
+    def __init__(self, img_size, patch_size, in_channels, embed_dim):
+        super().__init__()
+        pass  # self.num_patches, self.proj
+
+    def forward(self, x):
+        pass  # reshape to patches, project
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+pe = PatchEmbedding(32, 8, 3, 64)
+x = torch.randn(2, 3, 32, 32)
+print('Output:', pe(x).shape)
+print('Patches:', pe.num_patches)
+```
+
+## Co sprawdza judge
+
+- Output shape
+- num_patches attribute
+- Different image sizes
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('vit_patch')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn as nn
+```
+
+```python
+# ✅ SOLUTION
+
+class PatchEmbedding(nn.Module):
+    def __init__(self, img_size, patch_size, in_channels, embed_dim):
+        super().__init__()
+        self.patch_size = patch_size
+        self.num_patches = (img_size // patch_size) ** 2
+        self.proj = nn.Linear(in_channels * patch_size * patch_size, embed_dim)
+
+    def forward(self, x):
+        B, C, H, W = x.shape
+        p = self.patch_size
+        n_h, n_w = H // p, W // p
+        x = x.reshape(B, C, n_h, p, n_w, p)
+        x = x.permute(0, 2, 4, 1, 3, 5).reshape(B, n_h * n_w, C * p * p)
+        return self.proj(x)
+```
+
+```python
+# Demo
+pe = PatchEmbedding(224, 16, 3, 768)
+x = torch.randn(1, 3, 224, 224)
+print('Output:', pe(x).shape)
+print('Patches:', pe.num_patches)
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./26-lora.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./28-moe.qmd)
+:::

@@ -1,0 +1,114 @@
+---
+title: "30. Cosine LR Scheduler with Warmup"
+description: "HTMLowa wersja notebooka 30_cosine_lr.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `cosine_lr_schedule`<br>
+**Notebook:** [`30_cosine_lr.ipynb`](../../src/templates/30_cosine_lr.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement a **cosine learning rate schedule** with linear warmup.
+
+### Signature
+```python
+def cosine_lr_schedule(step, total_steps, warmup_steps, max_lr, min_lr=0.0) -> float:
+```
+
+### Schedule
+```
+step < warmup:  lr = max_lr * step / warmup_steps  (linear ramp)
+step >= warmup: lr = min_lr + 0.5*(max_lr-min_lr)*(1 + cos(π * progress))
+```
+where `progress = (step - warmup) / (total - warmup)`
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Warmup: linear ramp from 0 to max_lr over warmup_steps. Then cosine decay: min_lr + 0.5*(max_lr-min_lr)*(1+cos(pi*progress)).
+:::
+
+## Importy
+
+```python
+import math
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def cosine_lr_schedule(step, total_steps, warmup_steps, max_lr, min_lr=0.0):
+    pass  # warmup then cosine decay
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+lrs = [cosine_lr_schedule(i, 100, 10, 0.001) for i in range(101)]
+print(f'Start: {lrs[0]:.6f}')
+print(f'Warmup end: {lrs[10]:.6f}')
+print(f'Mid: {lrs[55]:.6f}')
+print(f'End: {lrs[100]:.6f}')
+```
+
+## Co sprawdza judge
+
+- Start of warmup
+- End of warmup
+- End of schedule
+- Warmup is monotonically increasing
+- Cosine shape
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('cosine_lr')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import math
+```
+
+```python
+# ✅ SOLUTION
+
+def cosine_lr_schedule(step, total_steps, warmup_steps, max_lr, min_lr=0.0):
+    if step < warmup_steps:
+        return max_lr * step / warmup_steps
+    if step >= total_steps:
+        return min_lr
+    progress = (step - warmup_steps) / (total_steps - warmup_steps)
+    return min_lr + 0.5 * (max_lr - min_lr) * (1.0 + math.cos(math.pi * progress))
+```
+
+```python
+# Demo
+lrs = [cosine_lr_schedule(i, 100, 10, 0.001) for i in range(101)]
+print(f'Start: {lrs[0]:.6f}, Warmup end: {lrs[10]:.6f}, Mid: {lrs[55]:.6f}, End: {lrs[100]:.6f}')
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./29-adam.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./31-gradient-accumulation.qmd)
+:::

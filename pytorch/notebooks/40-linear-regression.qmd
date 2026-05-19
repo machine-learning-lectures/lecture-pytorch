@@ -1,0 +1,222 @@
+---
+title: "40. Linear Regression"
+description: "HTMLowa wersja notebooka 40_linear_regression.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `LinearRegression`<br>
+**Notebook:** [`40_linear_regression.ipynb`](../../src/templates/40_linear_regression.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **linear regression** using three different approaches — all in pure PyTorch.
+
+Given data `X` of shape `(N, D)` and targets `y` of shape `(N,)`, find weight `w` of shape `(D,)` and bias `b` (scalar) such that:
+
+$$\hat{y} = Xw + b$$
+
+### Signature
+```python
+class LinearRegression:
+    def closed_form(self, X: Tensor, y: Tensor) -> tuple[Tensor, Tensor]: ...
+    def gradient_descent(self, X: Tensor, y: Tensor, lr=0.01, steps=1000) -> tuple[Tensor, Tensor]: ...
+    def nn_linear(self, X: Tensor, y: Tensor, lr=0.01, steps=1000) -> tuple[Tensor, Tensor]: ...
+```
+
+All methods return `(w, b)` where `w` has shape `(D,)` and `b` has shape `()`.
+
+### Method 1 — Closed-Form (Normal Equation)
+Augment X with a ones column, then solve:
+
+$$\theta = (X_{aug}^T X_{aug})^{-1} X_{aug}^T y$$
+
+Or use `torch.linalg.lstsq` / `torch.linalg.solve`.
+
+### Method 2 — Gradient Descent from Scratch
+Initialize `w` and `b` to zeros. Repeat for `steps` iterations:
+```
+pred = X @ w + b
+error = pred - y
+grad_w = (2/N) * X^T @ error
+grad_b = (2/N) * error.sum()
+w -= lr * grad_w
+b -= lr * grad_b
+```
+
+### Method 3 — PyTorch nn.Linear
+Create `nn.Linear(D, 1)`, use `nn.MSELoss` and an optimizer (e.g., `torch.optim.SGD`).
+After training, extract `w` and `b` from the layer.
+
+### Rules
+- All inputs and outputs must be **PyTorch tensors**
+- Do **NOT** use numpy or sklearn
+- `closed_form` must not use iterative optimization
+- `gradient_descent` must manually compute gradients (no `autograd`)
+- `nn_linear` should use `torch.nn.Linear` and `loss.backward()`
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Closed-form: augment X with ones column, solve w = (X^T X)^{-1} X^T y via torch.linalg.lstsq. Gradient descent: grad_w = (2/N) * X^T @ (pred - y), update w -= lr * grad_w. nn.Linear: create nn.Linear(D, 1), use MSELoss + optimizer.step() loop.
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn as nn
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class LinearRegression:
+    def closed_form(self, X: torch.Tensor, y: torch.Tensor):
+        """Normal equation: w = (X^T X)^{-1} X^T y"""
+        pass  # Return (w, b)
+
+    def gradient_descent(self, X: torch.Tensor, y: torch.Tensor,
+                         lr: float = 0.01, steps: int = 1000):
+        """Manual gradient descent loop"""
+        pass  # Return (w, b)
+
+    def nn_linear(self, X: torch.Tensor, y: torch.Tensor,
+                  lr: float = 0.01, steps: int = 1000):
+        """Train nn.Linear with autograd"""
+        pass  # Return (w, b)
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+torch.manual_seed(42)
+X = torch.randn(100, 3)
+true_w = torch.tensor([2.0, -1.0, 0.5])
+y = X @ true_w + 3.0
+
+model = LinearRegression()
+
+w_cf, b_cf = model.closed_form(X, y)
+print(f"Closed-form:  w={w_cf}, b={b_cf.item():.4f}")
+
+w_gd, b_gd = model.gradient_descent(X, y, lr=0.05, steps=2000)
+print(f"Grad descent: w={w_gd}, b={b_gd.item():.4f}")
+
+w_nn, b_nn = model.nn_linear(X, y, lr=0.05, steps=2000)
+print(f"nn.Linear:    w={w_nn}, b={b_nn.item():.4f}")
+
+print(f"\nTrue:         w={true_w}, b=3.0")
+```
+
+## Co sprawdza judge
+
+- Closed-form returns correct shapes
+- Closed-form finds correct weights
+- Gradient descent converges
+- nn.Linear approach works
+- All three methods agree
+- Closed-form uses no autograd
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check("linear_regression")
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn as nn
+```
+
+```python
+# ✅ SOLUTION
+
+class LinearRegression:
+    def closed_form(self, X: torch.Tensor, y: torch.Tensor):
+        """Normal equation via augmented matrix."""
+        N, D = X.shape
+        # Augment X with ones column for bias
+        X_aug = torch.cat([X, torch.ones(N, 1)], dim=1)  # (N, D+1)
+        # Solve (X^T X) theta = X^T y
+        theta = torch.linalg.lstsq(X_aug, y).solution      # (D+1,)
+        w = theta[:D]
+        b = theta[D]
+        return w.detach(), b.detach()
+
+    def gradient_descent(self, X: torch.Tensor, y: torch.Tensor,
+                         lr: float = 0.01, steps: int = 1000):
+        """Manual gradient computation — no autograd."""
+        N, D = X.shape
+        w = torch.zeros(D)
+        b = torch.tensor(0.0)
+
+        for _ in range(steps):
+            pred = X @ w + b          # (N,)
+            error = pred - y           # (N,)
+            grad_w = (2.0 / N) * (X.T @ error)  # (D,)
+            grad_b = (2.0 / N) * error.sum()     # scalar
+            w = w - lr * grad_w
+            b = b - lr * grad_b
+
+        return w, b
+
+    def nn_linear(self, X: torch.Tensor, y: torch.Tensor,
+                  lr: float = 0.01, steps: int = 1000):
+        """PyTorch nn.Linear with autograd training loop."""
+        N, D = X.shape
+        layer = nn.Linear(D, 1)
+        optimizer = torch.optim.SGD(layer.parameters(), lr=lr)
+        loss_fn = nn.MSELoss()
+
+        for _ in range(steps):
+            optimizer.zero_grad()
+            pred = layer(X).squeeze(-1)  # (N,)
+            loss = loss_fn(pred, y)
+            loss.backward()
+            optimizer.step()
+
+        w = layer.weight.data.squeeze(0)  # (D,)
+        b = layer.bias.data.squeeze(0)    # scalar ()
+        return w, b
+```
+
+```python
+# Verify
+torch.manual_seed(42)
+X = torch.randn(100, 3)
+true_w = torch.tensor([2.0, -1.0, 0.5])
+y = X @ true_w + 3.0
+
+model = LinearRegression()
+for name, method in [("Closed-form", model.closed_form),
+                      ("Grad Descent", lambda X, y: model.gradient_descent(X, y, lr=0.05, steps=2000)),
+                      ("nn.Linear", lambda X, y: model.nn_linear(X, y, lr=0.05, steps=2000))]:
+    w, b = method(X, y)
+    print(f"{name:13s}  w={w.tolist()}  b={b.item():.4f}")
+print(f"{'True':13s}  w={true_w.tolist()}  b=3.0000")
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./39-ppo-loss.qmd) | [Indeks](../../materials/index.qmd)
+:::

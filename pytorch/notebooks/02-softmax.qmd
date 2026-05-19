@@ -1,0 +1,116 @@
+---
+title: "02. Implement Softmax"
+description: "HTMLowa wersja notebooka 02_softmax.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Easy`<br>
+**Funkcja/klasa:** `my_softmax`<br>
+**Notebook:** [`02_softmax.ipynb`](../../src/templates/02_softmax.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement the **Softmax** function from scratch.
+
+$$\text{softmax}(x_i) = \frac{e^{x_i}}{\sum_j e^{x_j}}$$
+
+### Signature
+```python
+def my_softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
+    ...
+```
+
+### Rules
+- Do **NOT** use `torch.softmax`, `F.softmax`, or `torch.nn.Softmax`
+- Must be **numerically stable** (hint: subtract `max` before `exp`)
+
+### Example
+```
+Input:  tensor([1., 2., 3.])
+Output: tensor([0.0900, 0.2447, 0.6652])  # sums to 1.0
+```
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+softmax(x)_i = exp(x_i) / sum(exp(x_j)). Subtract max(x) first for numerical stability.
+:::
+
+## Importy
+
+```python
+import torch
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def my_softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
+    pass  # Replace this
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+x = torch.tensor([1.0, 2.0, 3.0])
+print("Output:", my_softmax(x, dim=-1))
+print("Sum:   ", my_softmax(x, dim=-1).sum())  # should be ~1.0
+print("Ref:   ", torch.softmax(x, dim=-1))
+```
+
+## Co sprawdza judge
+
+- Basic 1-D
+- 2-D along dim=-1
+- Numerical stability
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check("softmax")
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+```
+
+```python
+# ✅ SOLUTION
+
+def my_softmax(x: torch.Tensor, dim: int = -1) -> torch.Tensor:
+    x_max = x.max(dim=dim, keepdim=True).values
+    e_x = torch.exp(x - x_max)
+    return e_x / e_x.sum(dim=dim, keepdim=True)
+```
+
+```python
+# Verify
+x = torch.tensor([1.0, 2.0, 3.0])
+print("Output:", my_softmax(x, dim=-1))
+print("Sum:   ", my_softmax(x, dim=-1).sum())
+print("Ref:   ", torch.softmax(x, dim=-1))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./01-relu.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./03-linear.qmd)
+:::

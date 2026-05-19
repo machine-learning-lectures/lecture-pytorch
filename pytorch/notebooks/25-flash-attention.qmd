@@ -1,0 +1,141 @@
+---
+title: "25. Flash Attention (Tiled)"
+description: "HTMLowa wersja notebooka 25_flash_attention.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Hard`<br>
+**Funkcja/klasa:** `flash_attention`<br>
+**Notebook:** [`25_flash_attention.ipynb`](../../src/templates/25_flash_attention.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **tiled attention with online softmax** — the core idea behind Flash Attention.
+
+### Signature
+```python
+def flash_attention(Q, K, V, block_size=32) -> Tensor:
+    # Q, K, V: (B, S, D)
+    # Returns: (B, S, D) — same as standard attention
+```
+
+### Key Insight
+Instead of materializing the full S×S attention matrix, process in blocks:
+1. For each Q-block, iterate over K/V blocks
+2. Use **online softmax**: track running `max` and `sum`
+3. Rescale accumulator when max changes: `acc *= exp(old_max - new_max)`
+4. Final: `output = acc / row_sum`
+
+Must give **identical** results to standard softmax attention.
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Process Q in blocks. For each Q-block, iterate over K/V blocks. Use online softmax: track running max and sum, rescale accumulator when max changes. output = acc / row_sum.
+:::
+
+## Importy
+
+```python
+import torch
+import math
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def flash_attention(Q, K, V, block_size=32):
+    # Process Q in blocks, iterate K/V blocks with online softmax
+    pass
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+import math
+Q, K, V = torch.randn(1, 8, 4), torch.randn(1, 8, 4), torch.randn(1, 8, 4)
+out = flash_attention(Q, K, V, block_size=4)
+scores = torch.bmm(Q, K.transpose(1,2)) / math.sqrt(4)
+ref = torch.bmm(torch.softmax(scores, dim=-1), V)
+print('Match:', torch.allclose(out, ref, atol=1e-4))
+```
+
+## Co sprawdza judge
+
+- Matches standard attention
+- Non-aligned block size
+- Block size invariant
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('flash_attention')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import math
+```
+
+```python
+# ✅ SOLUTION
+
+def flash_attention(Q, K, V, block_size=32):
+    B, S, D = Q.shape
+    output = torch.zeros_like(Q)
+    for i in range(0, S, block_size):
+        qi = Q[:, i:i+block_size]
+        bs_q = qi.shape[1]
+        row_max = torch.full((B, bs_q, 1), float('-inf'), device=Q.device)
+        row_sum = torch.zeros(B, bs_q, 1, device=Q.device)
+        acc = torch.zeros(B, bs_q, D, device=Q.device)
+        for j in range(0, S, block_size):
+            kj = K[:, j:j+block_size]
+            vj = V[:, j:j+block_size]
+            scores = torch.bmm(qi, kj.transpose(1, 2)) / math.sqrt(D)
+            block_max = scores.max(dim=-1, keepdim=True).values
+            new_max = torch.maximum(row_max, block_max)
+            correction = torch.exp(row_max - new_max)
+            exp_scores = torch.exp(scores - new_max)
+            acc = acc * correction + torch.bmm(exp_scores, vj)
+            row_sum = row_sum * correction + exp_scores.sum(dim=-1, keepdim=True)
+            row_max = new_max
+        output[:, i:i+block_size] = acc / row_sum
+    return output
+```
+
+```python
+# Demo
+import math
+Q, K, V = torch.randn(1, 16, 8), torch.randn(1, 16, 8), torch.randn(1, 16, 8)
+out = flash_attention(Q, K, V, block_size=4)
+scores = torch.bmm(Q, K.transpose(1,2)) / math.sqrt(8)
+ref = torch.bmm(torch.softmax(scores, dim=-1), V)
+print('Shape:', out.shape)
+print('Max diff:', (out - ref).abs().max().item())
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./24-rope.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./26-lora.qmd)
+:::

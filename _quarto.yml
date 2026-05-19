@@ -3,8 +3,12 @@ project:
   output-dir: _site
   render:
     - index.qmd
-    - labs/**/*.qmd
-    - practice/**/*.qmd
+    - materials/*.qmd
+    - labs/lab-*.qmd
+    - pytorch/notebooks/*.qmd
+  resources:
+    - src/templates/*.ipynb
+    - src/solutions/*.ipynb
 
 website:
   title: "Interactive ML Labs"
@@ -16,19 +20,19 @@ website:
     left:
       - text: "Start"
         href: index.qmd
-      - text: "Labs"
-        href: labs/index.qmd
-      - text: "PyTorch Gym"
-        href: practice/index.qmd
+      - text: "Materiały"
+        href: materials/index.qmd
       - text: "Roadmap"
         href: index.qmd#roadmap
   sidebar:
     style: "docked"
     search: true
     contents:
-      - text: "Overview"
-        href: labs/index.qmd
-      - section: "Foundations"
+      - section: "Indeks"
+        contents:
+          - text: "Indeks materiałów"
+            href: materials/index.qmd
+      - section: "Podstawy"
         contents:
           - text: "1. Intro to PyTorch"
             href: labs/lab-01-pytorch.qmd
@@ -42,7 +46,7 @@ website:
             href: labs/lab-05-isolation-forest.qmd
           - text: "6. Entropy and KL"
             href: labs/lab-06-entropy-kl.qmd
-      - section: "Generative Models"
+      - section: "Modele generatywne"
         contents:
           - text: "7. Autoencoder"
             href: labs/lab-07-autoencoder.qmd
@@ -54,12 +58,98 @@ website:
             href: labs/lab-10-wgan-gp.qmd
           - text: "11. VQ-VAE"
             href: labs/lab-11-vq-vae.qmd
-      - section: "PyTorch Gym"
+      - section: "PyTorch: Fundamenty"
         contents:
-          - text: "Practice Overview"
-            href: practice/index.qmd
-          - text: "Integrated Path"
-            href: practice/integrated-path.qmd
+          - text: "01. Implement ReLU"
+            href: pytorch/notebooks/01-relu.qmd
+          - text: "02. Implement Softmax"
+            href: pytorch/notebooks/02-softmax.qmd
+          - text: "16. Cross-Entropy Loss"
+            href: pytorch/notebooks/16-cross-entropy.qmd
+          - text: "17. Implement Dropout"
+            href: pytorch/notebooks/17-dropout.qmd
+          - text: "18. Embedding Layer"
+            href: pytorch/notebooks/18-embedding.qmd
+          - text: "19. GELU Activation"
+            href: pytorch/notebooks/19-gelu.qmd
+          - text: "20. Kaiming Initialization"
+            href: pytorch/notebooks/20-weight-init.qmd
+          - text: "21. Gradient Norm Clipping"
+            href: pytorch/notebooks/21-gradient-clipping.qmd
+          - text: "31. Gradient Accumulation"
+            href: pytorch/notebooks/31-gradient-accumulation.qmd
+          - text: "40. Linear Regression"
+            href: pytorch/notebooks/40-linear-regression.qmd
+          - text: "03. Simple Linear Layer"
+            href: pytorch/notebooks/03-linear.qmd
+          - text: "04. Implement LayerNorm"
+            href: pytorch/notebooks/04-layernorm.qmd
+          - text: "07. Implement BatchNorm"
+            href: pytorch/notebooks/07-batchnorm.qmd
+          - text: "08. Implement RMSNorm"
+            href: pytorch/notebooks/08-rmsnorm.qmd
+          - text: "15. SwiGLU MLP"
+            href: pytorch/notebooks/15-mlp.qmd
+          - text: "22. 2D Convolution"
+            href: pytorch/notebooks/22-conv2d.qmd
+      - section: "PyTorch: Attention"
+        contents:
+          - text: "23. Multi-Head Cross-Attention"
+            href: pytorch/notebooks/23-cross-attention.qmd
+          - text: "05. Softmax Attention"
+            href: pytorch/notebooks/05-attention.qmd
+          - text: "06. Multi-Head Attention"
+            href: pytorch/notebooks/06-multihead-attention.qmd
+          - text: "09. Causal Self-Attention"
+            href: pytorch/notebooks/09-causal-attention.qmd
+          - text: "10. Grouped Query Attention"
+            href: pytorch/notebooks/10-gqa.qmd
+          - text: "11. Sliding Window Attention"
+            href: pytorch/notebooks/11-sliding-window.qmd
+          - text: "12. Linear Self-Attention"
+            href: pytorch/notebooks/12-linear-attention.qmd
+          - text: "14. KV Cache Attention"
+            href: pytorch/notebooks/14-kv-cache.qmd
+          - text: "24. Rotary Position Embedding"
+            href: pytorch/notebooks/24-rope.qmd
+          - text: "25. Flash Attention"
+            href: pytorch/notebooks/25-flash-attention.qmd
+      - section: "PyTorch: Architektura"
+        contents:
+          - text: "26. LoRA"
+            href: pytorch/notebooks/26-lora.qmd
+          - text: "27. ViT Patch Embedding"
+            href: pytorch/notebooks/27-vit-patch.qmd
+          - text: "13. GPT-2 Transformer Block"
+            href: pytorch/notebooks/13-gpt2-block.qmd
+          - text: "28. Mixture of Experts"
+            href: pytorch/notebooks/28-moe.qmd
+      - section: "PyTorch: Trening"
+        contents:
+          - text: "29. Adam Optimizer"
+            href: pytorch/notebooks/29-adam.qmd
+          - text: "30. Cosine LR Scheduler"
+            href: pytorch/notebooks/30-cosine-lr.qmd
+      - section: "PyTorch: Inferencja"
+        contents:
+          - text: "32. Top-k / Top-p Sampling"
+            href: pytorch/notebooks/32-topk-sampling.qmd
+          - text: "33. Beam Search Decoding"
+            href: pytorch/notebooks/33-beam-search.qmd
+          - text: "34. Speculative Decoding"
+            href: pytorch/notebooks/34-speculative-decoding.qmd
+      - section: "PyTorch: Zaawansowane"
+        contents:
+          - text: "35. Byte-Pair Encoding"
+            href: pytorch/notebooks/35-bpe.qmd
+          - text: "36. INT8 Quantized Linear"
+            href: pytorch/notebooks/36-int8-quantization.qmd
+          - text: "37. DPO Loss"
+            href: pytorch/notebooks/37-dpo-loss.qmd
+          - text: "38. GRPO Loss"
+            href: pytorch/notebooks/38-grpo-loss.qmd
+          - text: "39. PPO Clipped Loss"
+            href: pytorch/notebooks/39-ppo-loss.qmd
 
 format:
   html:

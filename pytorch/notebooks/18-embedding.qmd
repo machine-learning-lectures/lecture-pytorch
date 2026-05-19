@@ -1,0 +1,121 @@
+---
+title: "18. Embedding Layer"
+description: "HTMLowa wersja notebooka 18_embedding.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Easy`<br>
+**Funkcja/klasa:** `MyEmbedding`<br>
+**Notebook:** [`18_embedding.ipynb`](../../src/templates/18_embedding.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement an **embedding lookup table** from scratch.
+
+### Signature
+```python
+class MyEmbedding(nn.Module):
+    def __init__(self, num_embeddings: int, embedding_dim: int): ...
+    def forward(self, indices: Tensor) -> Tensor: ...
+```
+
+### Rules
+- `self.weight`: `nn.Parameter` of shape `(num_embeddings, embedding_dim)`
+- Forward: index into weight matrix — `weight[indices]`
+- Do NOT use `nn.Embedding`
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Store a weight matrix of shape (num_embeddings, embedding_dim) as nn.Parameter. Forward = weight[indices].
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn as nn
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class MyEmbedding(nn.Module):
+    def __init__(self, num_embeddings, embedding_dim):
+        super().__init__()
+        pass
+
+    def forward(self, indices):
+        pass
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+emb = MyEmbedding(10, 4)
+idx = torch.tensor([0, 3, 7])
+print('Output shape:', emb(idx).shape)
+print('Matches manual:', torch.equal(emb(idx)[0], emb.weight[0]))
+```
+
+## Co sprawdza judge
+
+- Weight shape
+- Lookup correctness
+- Batch of indices
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('embedding')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn as nn
+```
+
+```python
+# ✅ SOLUTION
+
+class MyEmbedding(nn.Module):
+    def __init__(self, num_embeddings, embedding_dim):
+        super().__init__()
+        self.weight = nn.Parameter(torch.randn(num_embeddings, embedding_dim))
+
+    def forward(self, indices):
+        return self.weight[indices]
+```
+
+```python
+# Demo
+emb = MyEmbedding(10, 4)
+idx = torch.tensor([0, 3, 7])
+print('Output shape:', emb(idx).shape)
+print('Matches manual:', torch.equal(emb(idx)[0], emb.weight[0]))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./17-dropout.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./19-gelu.qmd)
+:::

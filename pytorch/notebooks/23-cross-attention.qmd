@@ -1,0 +1,137 @@
+---
+title: "23. Multi-Head Cross-Attention"
+description: "HTMLowa wersja notebooka 23_cross_attention.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Medium`<br>
+**Funkcja/klasa:** `MultiHeadCrossAttention`<br>
+**Notebook:** [`23_cross_attention.ipynb`](../../src/templates/23_cross_attention.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **multi-head cross-attention** (encoder-decoder attention).
+
+### Signature
+```python
+class MultiHeadCrossAttention(nn.Module):
+    def __init__(self, d_model: int, num_heads: int): ...
+    def forward(self, x_q: Tensor, x_kv: Tensor) -> Tensor:
+        # x_q: (B, S_q, D) — decoder queries
+        # x_kv: (B, S_kv, D) — encoder keys/values
+```
+
+### Key Differences from Self-Attention
+- Q comes from the decoder, K and V come from the encoder
+- No causal mask (all encoder positions visible)
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Q from decoder (x_q), K/V from encoder (x_kv). Project, reshape to multi-head, compute scaled dot-product attention (no causal mask). Concat heads and project output.
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn as nn
+import math
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class MultiHeadCrossAttention(nn.Module):
+    def __init__(self, d_model, num_heads):
+        super().__init__()
+        pass  # W_q, W_k, W_v, W_o
+
+    def forward(self, x_q, x_kv):
+        pass  # Q from x_q, K/V from x_kv, no causal mask
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+attn = MultiHeadCrossAttention(64, 4)
+x_q = torch.randn(2, 6, 64)
+x_kv = torch.randn(2, 10, 64)
+print('Output:', attn(x_q, x_kv).shape)
+```
+
+## Co sprawdza judge
+
+- Output shape
+- Q and KV different lengths
+- No causal mask — all KV affects all Q
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('cross_attention')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn as nn
+import math
+```
+
+```python
+# ✅ SOLUTION
+
+class MultiHeadCrossAttention(nn.Module):
+    def __init__(self, d_model, num_heads):
+        super().__init__()
+        self.num_heads = num_heads
+        self.d_k = d_model // num_heads
+        self.W_q = nn.Linear(d_model, d_model)
+        self.W_k = nn.Linear(d_model, d_model)
+        self.W_v = nn.Linear(d_model, d_model)
+        self.W_o = nn.Linear(d_model, d_model)
+
+    def forward(self, x_q, x_kv):
+        B, S_q, _ = x_q.shape
+        S_kv = x_kv.shape[1]
+        q = self.W_q(x_q).view(B, S_q, self.num_heads, self.d_k).transpose(1, 2)
+        k = self.W_k(x_kv).view(B, S_kv, self.num_heads, self.d_k).transpose(1, 2)
+        v = self.W_v(x_kv).view(B, S_kv, self.num_heads, self.d_k).transpose(1, 2)
+        scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.d_k)
+        weights = torch.softmax(scores, dim=-1)
+        attn = torch.matmul(weights, v)
+        return self.W_o(attn.transpose(1, 2).contiguous().view(B, S_q, -1))
+```
+
+```python
+# Demo
+attn = MultiHeadCrossAttention(64, 4)
+x_q = torch.randn(2, 6, 64)
+x_kv = torch.randn(2, 10, 64)
+print('Output:', attn(x_q, x_kv).shape)
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./22-conv2d.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./24-rope.qmd)
+:::

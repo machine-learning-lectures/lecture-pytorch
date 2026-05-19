@@ -1,0 +1,108 @@
+---
+title: "19. GELU Activation"
+description: "HTMLowa wersja notebooka 19_gelu.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Easy`<br>
+**Funkcja/klasa:** `my_gelu`<br>
+**Notebook:** [`19_gelu.ipynb`](../../src/templates/19_gelu.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement the **GELU** (Gaussian Error Linear Unit) activation.
+
+$$\text{GELU}(x) = x \cdot \Phi(x) = x \cdot 0.5 \cdot (1 + \text{erf}(x / \sqrt{2}))$$
+
+### Signature
+```python
+def my_gelu(x: Tensor) -> Tensor: ...
+```
+
+### Rules
+- Do NOT use `F.gelu`, `nn.GELU`, or `torch.nn.functional.gelu`
+- Use `torch.erf` for the exact version
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Exact: x * 0.5 * (1 + erf(x / sqrt(2))). Or approximate: 0.5*x*(1+tanh(sqrt(2/pi)*(x+0.044715*x^3))).
+:::
+
+## Importy
+
+```python
+import torch
+import math
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def my_gelu(x):
+    pass
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+x = torch.tensor([-2., -1., 0., 1., 2.])
+print('Output:', my_gelu(x))
+print('Ref:   ', torch.nn.functional.gelu(x))
+```
+
+## Co sprawdza judge
+
+- Matches F.gelu
+- gelu(0) = 0
+- Shape preservation
+- Gradient flow
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('gelu')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import math
+```
+
+```python
+# ✅ SOLUTION
+
+def my_gelu(x):
+    return 0.5 * x * (1.0 + torch.erf(x / math.sqrt(2.0)))
+```
+
+```python
+# Demo
+x = torch.tensor([-2., -1., 0., 1., 2.])
+print('Output:', my_gelu(x))
+print('Ref:   ', torch.nn.functional.gelu(x))
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./18-embedding.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./20-weight-init.qmd)
+:::

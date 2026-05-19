@@ -1,0 +1,123 @@
+---
+title: "31. Gradient Accumulation"
+description: "HTMLowa wersja notebooka 31_gradient_accumulation.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Easy`<br>
+**Funkcja/klasa:** `accumulated_step`<br>
+**Notebook:** [`31_gradient_accumulation.ipynb`](../../src/templates/31_gradient_accumulation.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement a **training step with gradient accumulation** — simulating large batches with limited memory.
+
+### Signature
+```python
+def accumulated_step(model, optimizer, loss_fn, micro_batches) -> float:
+    # micro_batches: list of (input, target) tuples
+    # Returns: average loss (float)
+```
+
+### Algorithm
+1. `optimizer.zero_grad()`
+2. For each `(x, y)` in micro_batches: `loss = loss_fn(model(x), y) / len(micro_batches)`, then `loss.backward()`
+3. `optimizer.step()`
+4. Return total accumulated loss
+
+The key insight: dividing each loss by `n` before backward makes accumulated gradients equal to a single large-batch gradient.
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Zero grads once. For each micro-batch: forward, loss/n_batches, backward. Then optimizer.step(). The loss scaling ensures accumulated grads match a single large batch.
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn as nn
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def accumulated_step(model, optimizer, loss_fn, micro_batches):
+    pass  # zero_grad, loop (forward, scale loss, backward), step
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+model = nn.Linear(4, 2)
+opt = torch.optim.SGD(model.parameters(), lr=0.01)
+loss = accumulated_step(model, opt, nn.MSELoss(),
+    [(torch.randn(2, 4), torch.randn(2, 2)) for _ in range(4)])
+print('Loss:', loss)
+```
+
+## Co sprawdza judge
+
+- Matches full batch update
+- Returns loss value
+- Parameters actually update
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('gradient_accumulation')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn as nn
+```
+
+```python
+# ✅ SOLUTION
+
+def accumulated_step(model, optimizer, loss_fn, micro_batches):
+    optimizer.zero_grad()
+    total_loss = 0.0
+    n = len(micro_batches)
+    for x, y in micro_batches:
+        loss = loss_fn(model(x), y) / n
+        loss.backward()
+        total_loss += loss.item()
+    optimizer.step()
+    return total_loss
+```
+
+```python
+# Demo
+model = nn.Linear(4, 2)
+opt = torch.optim.SGD(model.parameters(), lr=0.01)
+loss = accumulated_step(model, opt, nn.MSELoss(),
+    [(torch.randn(2, 4), torch.randn(2, 2)) for _ in range(4)])
+print('Accumulated loss:', loss)
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./30-cosine-lr.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./32-topk-sampling.qmd)
+:::

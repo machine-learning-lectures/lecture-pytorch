@@ -1,0 +1,115 @@
+---
+title: "20. Kaiming Initialization"
+description: "HTMLowa wersja notebooka 20_weight_init.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Easy`<br>
+**Funkcja/klasa:** `kaiming_init`<br>
+**Notebook:** [`20_weight_init.ipynb`](../../src/templates/20_weight_init.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement **Kaiming (He) normal initialization** for weight tensors.
+
+$$W \sim \mathcal{N}(0, \text{std}^2) \quad \text{where} \quad \text{std} = \sqrt{\frac{2}{\text{fan\_in}}}$$
+
+### Signature
+```python
+def kaiming_init(weight: Tensor) -> Tensor:
+    # Initialize weight in-place with Kaiming normal
+    # fan_in = weight.shape[1]
+    # Returns the weight tensor
+```
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+For fan_in mode: std = sqrt(2 / fan_in) where fan_in = weight.shape[1]. Fill with normal(0, std). Return the tensor.
+:::
+
+## Importy
+
+```python
+import torch
+import math
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+def kaiming_init(weight):
+    pass  # fill with normal(0, sqrt(2/fan_in))
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+import math
+w = torch.empty(256, 512)
+kaiming_init(w)
+print(f'Mean: {w.mean():.4f} (expect ~0)')
+print(f'Std:  {w.std():.4f} (expect {math.sqrt(2/512):.4f})')
+```
+
+## Co sprawdza judge
+
+- Mean approximately 0
+- Std matches sqrt(2/fan_in)
+- Returns same tensor (in-place)
+- Smaller fan_in gives larger std
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('weight_init')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import math
+```
+
+```python
+# ✅ SOLUTION
+
+def kaiming_init(weight):
+    fan_in = weight.shape[1] if weight.dim() >= 2 else weight.shape[0]
+    std = math.sqrt(2.0 / fan_in)
+    with torch.no_grad():
+        weight.normal_(0, std)
+    return weight
+```
+
+```python
+# Demo
+import math
+w = torch.empty(256, 512)
+kaiming_init(w)
+print(f'Mean: {w.mean():.4f} (expect ~0)')
+print(f'Std:  {w.std():.4f} (expect {math.sqrt(2/512):.4f})')
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./19-gelu.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./21-gradient-clipping.qmd)
+:::

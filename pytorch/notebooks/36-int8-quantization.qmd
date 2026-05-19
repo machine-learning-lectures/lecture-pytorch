@@ -1,0 +1,134 @@
+---
+title: "36. INT8 Quantized Linear"
+description: "HTMLowa wersja notebooka 36_int8_quantization.ipynb."
+---
+
+::: {.lesson-meta}
+**Poziom:** `Hard`<br>
+**Funkcja/klasa:** `Int8Linear`<br>
+**Notebook:** [`36_int8_quantization.ipynb`](../../src/templates/36_int8_quantization.ipynb)
+:::
+
+::: {.lab-question}
+**Cel lekcji:** zrozum, jaki tensor wchodzi do funkcji, jaki tensor powinien wyjść, a potem zobacz minimalną implementację.
+:::
+
+## Treść zadania
+
+Implement a **post-training quantized linear layer** using INT8 weights.
+
+### Signature
+```python
+class Int8Linear(nn.Module):
+    def __init__(self, weight: Tensor, bias: Tensor = None): ...
+    def forward(self, x: Tensor) -> Tensor: ...
+```
+
+### Quantization (per-channel)
+1. `scale = weight.abs().max(dim=1) / 127`
+2. `weight_int8 = round(weight / scale).clamp(-128, 127).to(int8)`
+3. Store as `register_buffer` (not trainable)
+4. Forward: dequantize (`int8.float() * scale`) then matmul
+
+## Krok po kroku
+
+1. Przeczytaj sygnaturę i zapisz w głowie kształty tensorów.
+2. Odszukaj operację matematyczną: redukcję, mnożenie macierzy, maskowanie, indeksowanie albo moduł `nn.Module`.
+3. Zaimplementuj tylko brakujący fragment w szkielecie. Nie zaczynaj od optymalizacji.
+4. Uruchom mini-debug z notebooka i sprawdź kształty oraz wartości graniczne.
+5. Dopiero na końcu porównaj z rozwiązaniem referencyjnym.
+
+::: {.callout-tip}
+## Wskazówka
+Per-channel scale = abs(weight).max(dim=1) / 127. Quantize: round(weight/scale).clamp(-128,127).to(int8). Forward: dequantize and matmul.
+:::
+
+## Importy
+
+```python
+import torch
+import torch.nn as nn
+```
+
+## Szkielet z notebooka
+
+```python
+# ✏️ YOUR IMPLEMENTATION HERE
+
+class Int8Linear(nn.Module):
+    def __init__(self, weight, bias=None):
+        super().__init__()
+        pass  # quantize weight, register buffers
+
+    def forward(self, x):
+        pass  # dequantize and matmul
+```
+
+## Mini-debug
+
+```python
+# 🧪 Debug
+w = torch.randn(8, 4)
+q = Int8Linear(w)
+x = torch.randn(2, 4)
+print('Output:', q(x).shape)
+print('dtype:', q.weight_int8.dtype)
+print('Max quant error:', (w - q.weight_int8.float() * q.scale).abs().max().item())
+```
+
+## Co sprawdza judge
+
+- Weight is int8
+- Values in [-128, 127]
+- Dequantized close to original
+- Forward output shape
+- Weight is buffer not parameter
+
+```python
+# ✅ SUBMIT
+from torch_judge import check
+check('int8_quantization')
+```
+
+<details class="solution-details">
+<summary>Pokaż rozwiązanie referencyjne</summary>
+
+```python
+import torch
+import torch.nn as nn
+```
+
+```python
+# ✅ SOLUTION
+
+class Int8Linear(nn.Module):
+    def __init__(self, weight, bias=None):
+        super().__init__()
+        scale = weight.abs().amax(dim=1, keepdim=True) / 127.0
+        self.register_buffer('weight_int8',
+            torch.round(weight / (scale + 1e-10)).clamp(-128, 127).to(torch.int8))
+        self.register_buffer('scale', scale)
+        self.bias = nn.Parameter(bias.clone()) if bias is not None else None
+
+    def forward(self, x):
+        w = self.weight_int8.float() * self.scale
+        out = x @ w.T
+        if self.bias is not None:
+            out = out + self.bias
+        return out
+```
+
+```python
+# Demo
+w = torch.randn(8, 4)
+q = Int8Linear(w)
+print('Output:', q(torch.randn(2, 4)).shape)
+print('Weight dtype:', q.weight_int8.dtype)
+print('Compression: float32 -> int8 = 4x')
+```
+
+</details>
+
+::: {.lesson-nav}
+[← Poprzednie](./35-bpe.qmd) | [Indeks](../../materials/index.qmd) | [Następne →](./37-dpo-loss.qmd)
+:::
