@@ -1,9 +1,10 @@
 ---
 title: "Indeks materiałów"
 description: "Wspólny indeks klasycznych laboratoriów i notebooków PyTorch."
+toc: false
 ---
 
-To jest jedna mapa kursu: najpierw krótkie laboratoria z poprzednich zajęć, potem notebooki PyTorch przerobione na strony HTML do czytania na telefonie.
+To jest jedna mapa kursu: najpierw krótkie laboratoria z poprzednich zajęć, potem notebooki PyTorch przerobione na strony HTML do czytania na telefonie. Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kodu podczas budowania strony i z rozwiązaniami schowanymi do samokontroli.
 
 ::: {.callout-note}
 ## Tryb czytania
@@ -110,16 +111,12 @@ VQ, codebook
 
 :::
 
-## PyTorch w notebookach
-
-Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kodu podczas budowania strony i z rozwiązaniami schowanymi do samokontroli.
-
-### Fundamenty tensorów
+## Fundamenty tensorów
 
 ::: {.notebook-list}
 
 ::: {.notebook-item .easy}
-#### [01. Implement ReLU](../pytorch/notebooks/01-relu.qmd)
+### [01. Implement ReLU](../pytorch/notebooks/01-relu.qmd)
 
 `Easy` · `relu`
 
@@ -127,7 +124,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .easy}
-#### [02. Implement Softmax](../pytorch/notebooks/02-softmax.qmd)
+### [02. Implement Softmax](../pytorch/notebooks/02-softmax.qmd)
 
 `Easy` · `my_softmax`
 
@@ -135,7 +132,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .easy}
-#### [16. Cross-Entropy Loss](../pytorch/notebooks/16-cross-entropy.qmd)
+### [16. Cross-Entropy Loss](../pytorch/notebooks/16-cross-entropy.qmd)
 
 `Easy` · `cross_entropy_loss`
 
@@ -143,7 +140,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .easy}
-#### [17. Implement Dropout](../pytorch/notebooks/17-dropout.qmd)
+### [17. Implement Dropout](../pytorch/notebooks/17-dropout.qmd)
 
 `Easy` · `MyDropout`
 
@@ -151,7 +148,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .easy}
-#### [18. Embedding Layer](../pytorch/notebooks/18-embedding.qmd)
+### [18. Embedding Layer](../pytorch/notebooks/18-embedding.qmd)
 
 `Easy` · `MyEmbedding`
 
@@ -159,7 +156,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .easy}
-#### [19. GELU Activation](../pytorch/notebooks/19-gelu.qmd)
+### [19. GELU Activation](../pytorch/notebooks/19-gelu.qmd)
 
 `Easy` · `my_gelu`
 
@@ -167,7 +164,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .easy}
-#### [20. Kaiming Initialization](../pytorch/notebooks/20-weight-init.qmd)
+### [20. Kaiming Initialization](../pytorch/notebooks/20-weight-init.qmd)
 
 `Easy` · `kaiming_init`
 
@@ -175,7 +172,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .easy}
-#### [21. Gradient Norm Clipping](../pytorch/notebooks/21-gradient-clipping.qmd)
+### [21. Gradient Norm Clipping](../pytorch/notebooks/21-gradient-clipping.qmd)
 
 `Easy` · `clip_grad_norm`
 
@@ -183,7 +180,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .easy}
-#### [31. Gradient Accumulation](../pytorch/notebooks/31-gradient-accumulation.qmd)
+### [31. Gradient Accumulation](../pytorch/notebooks/31-gradient-accumulation.qmd)
 
 `Easy` · `accumulated_step`
 
@@ -191,7 +188,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .medium}
-#### [40. Linear Regression](../pytorch/notebooks/40-linear-regression.qmd)
+### [40. Linear Regression](../pytorch/notebooks/40-linear-regression.qmd)
 
 `Medium` · `LinearRegression`
 
@@ -199,7 +196,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .medium}
-#### [03. Simple Linear Layer](../pytorch/notebooks/03-linear.qmd)
+### [03. Simple Linear Layer](../pytorch/notebooks/03-linear.qmd)
 
 `Medium` · `SimpleLinear`
 
@@ -207,7 +204,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .medium}
-#### [04. Implement LayerNorm](../pytorch/notebooks/04-layernorm.qmd)
+### [04. Implement LayerNorm](../pytorch/notebooks/04-layernorm.qmd)
 
 `Medium` · `my_layer_norm`
 
@@ -215,7 +212,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .medium}
-#### [07. Implement BatchNorm](../pytorch/notebooks/07-batchnorm.qmd)
+### [07. Implement BatchNorm](../pytorch/notebooks/07-batchnorm.qmd)
 
 `Medium` · `my_batch_norm`
 
@@ -223,7 +220,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .medium}
-#### [08. Implement RMSNorm](../pytorch/notebooks/08-rmsnorm.qmd)
+### [08. Implement RMSNorm](../pytorch/notebooks/08-rmsnorm.qmd)
 
 `Medium` · `rms_norm`
 
@@ -231,7 +228,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .medium}
-#### [15. SwiGLU MLP](../pytorch/notebooks/15-mlp.qmd)
+### [15. SwiGLU MLP](../pytorch/notebooks/15-mlp.qmd)
 
 `Medium` · `SwiGLUMLP`
 
@@ -239,7 +236,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .medium}
-#### [22. 2D Convolution](../pytorch/notebooks/22-conv2d.qmd)
+### [22. 2D Convolution](../pytorch/notebooks/22-conv2d.qmd)
 
 `Medium` · `my_conv2d`
 
@@ -248,12 +245,12 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 
 :::
 
-### Attention i Transformery
+## Attention i Transformery
 
 ::: {.notebook-list}
 
 ::: {.notebook-item .medium}
-#### [23. Multi-Head Cross-Attention](../pytorch/notebooks/23-cross-attention.qmd)
+### [23. Multi-Head Cross-Attention](../pytorch/notebooks/23-cross-attention.qmd)
 
 `Medium` · `MultiHeadCrossAttention`
 
@@ -261,7 +258,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [05. Softmax Attention](../pytorch/notebooks/05-attention.qmd)
+### [05. Softmax Attention](../pytorch/notebooks/05-attention.qmd)
 
 `Hard` · `scaled_dot_product_attention`
 
@@ -269,7 +266,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [06. Multi-Head Attention](../pytorch/notebooks/06-multihead-attention.qmd)
+### [06. Multi-Head Attention](../pytorch/notebooks/06-multihead-attention.qmd)
 
 `Hard` · `MultiHeadAttention`
 
@@ -277,7 +274,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [09. Causal Self-Attention](../pytorch/notebooks/09-causal-attention.qmd)
+### [09. Causal Self-Attention](../pytorch/notebooks/09-causal-attention.qmd)
 
 `Hard` · `causal_attention`
 
@@ -285,7 +282,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [10. Grouped Query Attention](../pytorch/notebooks/10-gqa.qmd)
+### [10. Grouped Query Attention](../pytorch/notebooks/10-gqa.qmd)
 
 `Hard` · `GroupQueryAttention`
 
@@ -293,7 +290,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [11. Sliding Window Attention](../pytorch/notebooks/11-sliding-window.qmd)
+### [11. Sliding Window Attention](../pytorch/notebooks/11-sliding-window.qmd)
 
 `Hard` · `sliding_window_attention`
 
@@ -301,7 +298,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [12. Linear Self-Attention](../pytorch/notebooks/12-linear-attention.qmd)
+### [12. Linear Self-Attention](../pytorch/notebooks/12-linear-attention.qmd)
 
 `Hard` · `linear_attention`
 
@@ -309,7 +306,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [14. KV Cache Attention](../pytorch/notebooks/14-kv-cache.qmd)
+### [14. KV Cache Attention](../pytorch/notebooks/14-kv-cache.qmd)
 
 `Hard` · `KVCacheAttention`
 
@@ -317,7 +314,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [24. Rotary Position Embedding (RoPE)](../pytorch/notebooks/24-rope.qmd)
+### [24. Rotary Position Embedding (RoPE)](../pytorch/notebooks/24-rope.qmd)
 
 `Hard` · `apply_rope`
 
@@ -325,7 +322,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [25. Flash Attention (Tiled)](../pytorch/notebooks/25-flash-attention.qmd)
+### [25. Flash Attention (Tiled)](../pytorch/notebooks/25-flash-attention.qmd)
 
 `Hard` · `flash_attention`
 
@@ -334,12 +331,12 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 
 :::
 
-### Architektura i adaptacja
+## Architektura i adaptacja
 
 ::: {.notebook-list}
 
 ::: {.notebook-item .medium}
-#### [26. LoRA (Low-Rank Adaptation)](../pytorch/notebooks/26-lora.qmd)
+### [26. LoRA (Low-Rank Adaptation)](../pytorch/notebooks/26-lora.qmd)
 
 `Medium` · `LoRALinear`
 
@@ -347,7 +344,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .medium}
-#### [27. ViT Patch Embedding](../pytorch/notebooks/27-vit-patch.qmd)
+### [27. ViT Patch Embedding](../pytorch/notebooks/27-vit-patch.qmd)
 
 `Medium` · `PatchEmbedding`
 
@@ -355,7 +352,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [13. GPT-2 Transformer Block](../pytorch/notebooks/13-gpt2-block.qmd)
+### [13. GPT-2 Transformer Block](../pytorch/notebooks/13-gpt2-block.qmd)
 
 `Hard` · `GPT2Block`
 
@@ -363,7 +360,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [28. Mixture of Experts (MoE)](../pytorch/notebooks/28-moe.qmd)
+### [28. Mixture of Experts (MoE)](../pytorch/notebooks/28-moe.qmd)
 
 `Hard` · `MixtureOfExperts`
 
@@ -372,12 +369,12 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 
 :::
 
-### Trening i optymalizacja
+## Trening i optymalizacja
 
 ::: {.notebook-list}
 
 ::: {.notebook-item .medium}
-#### [29. Adam Optimizer](../pytorch/notebooks/29-adam.qmd)
+### [29. Adam Optimizer](../pytorch/notebooks/29-adam.qmd)
 
 `Medium` · `MyAdam`
 
@@ -385,7 +382,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .medium}
-#### [30. Cosine LR Scheduler with Warmup](../pytorch/notebooks/30-cosine-lr.qmd)
+### [30. Cosine LR Scheduler with Warmup](../pytorch/notebooks/30-cosine-lr.qmd)
 
 `Medium` · `cosine_lr_schedule`
 
@@ -394,12 +391,12 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 
 :::
 
-### Inferencja i dekodowanie
+## Inferencja i dekodowanie
 
 ::: {.notebook-list}
 
 ::: {.notebook-item .medium}
-#### [32. Top-k / Top-p Sampling](../pytorch/notebooks/32-topk-sampling.qmd)
+### [32. Top-k / Top-p Sampling](../pytorch/notebooks/32-topk-sampling.qmd)
 
 `Medium` · `sample_top_k_top_p`
 
@@ -407,7 +404,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .medium}
-#### [33. Beam Search Decoding](../pytorch/notebooks/33-beam-search.qmd)
+### [33. Beam Search Decoding](../pytorch/notebooks/33-beam-search.qmd)
 
 `Medium` · `beam_search`
 
@@ -415,7 +412,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [34. Speculative Decoding](../pytorch/notebooks/34-speculative-decoding.qmd)
+### [34. Speculative Decoding](../pytorch/notebooks/34-speculative-decoding.qmd)
 
 `Hard` · `speculative_decode`
 
@@ -424,12 +421,12 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 
 :::
 
-### Zaawansowane tematy
+## Zaawansowane tematy
 
 ::: {.notebook-list}
 
 ::: {.notebook-item .hard}
-#### [35. Byte-Pair Encoding (BPE)](../pytorch/notebooks/35-bpe.qmd)
+### [35. Byte-Pair Encoding (BPE)](../pytorch/notebooks/35-bpe.qmd)
 
 `Hard` · `SimpleBPE`
 
@@ -437,7 +434,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [36. INT8 Quantized Linear](../pytorch/notebooks/36-int8-quantization.qmd)
+### [36. INT8 Quantized Linear](../pytorch/notebooks/36-int8-quantization.qmd)
 
 `Hard` · `Int8Linear`
 
@@ -445,7 +442,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [37. DPO (Direct Preference Optimization) Loss](../pytorch/notebooks/37-dpo-loss.qmd)
+### [37. DPO (Direct Preference Optimization) Loss](../pytorch/notebooks/37-dpo-loss.qmd)
 
 `Hard` · `dpo_loss`
 
@@ -453,7 +450,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [38. GRPO (Group Relative Policy Optimization) Loss](../pytorch/notebooks/38-grpo-loss.qmd)
+### [38. GRPO (Group Relative Policy Optimization) Loss](../pytorch/notebooks/38-grpo-loss.qmd)
 
 `Hard` · `grpo_loss`
 
@@ -461,7 +458,7 @@ Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kod
 :::
 
 ::: {.notebook-item .hard}
-#### [39. PPO (Proximal Policy Optimization) Clipped Loss](../pytorch/notebooks/39-ppo-loss.qmd)
+### [39. PPO (Proximal Policy Optimization) Clipped Loss](../pytorch/notebooks/39-ppo-loss.qmd)
 
 `Hard` · `ppo_loss`
 

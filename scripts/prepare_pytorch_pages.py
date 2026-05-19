@@ -504,9 +504,10 @@ def materials_index_markdown(pages: list[NotebookPage]) -> str:
         "---",
         'title: "Indeks materiałów"',
         'description: "Wspólny indeks klasycznych laboratoriów i notebooków PyTorch."',
+        "toc: false",
         "---",
         "",
-        "To jest jedna mapa kursu: najpierw krótkie laboratoria z poprzednich zajęć, potem notebooki PyTorch przerobione na strony HTML do czytania na telefonie.",
+        "To jest jedna mapa kursu: najpierw krótkie laboratoria z poprzednich zajęć, potem notebooki PyTorch przerobione na strony HTML do czytania na telefonie. Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kodu podczas budowania strony i z rozwiązaniami schowanymi do samokontroli.",
         "",
         "::: {.callout-note}",
         "## Tryb czytania",
@@ -530,23 +531,16 @@ def materials_index_markdown(pages: list[NotebookPage]) -> str:
             ])
         parts.extend([":::", ""])
 
-    parts.extend([
-        "## PyTorch w notebookach",
-        "",
-        "Notebooki są pokazane jako zwykłe strony HTML: bez Colaba, bez wykonywania kodu podczas budowania strony i z rozwiązaniami schowanymi do samokontroli.",
-        "",
-    ])
-
     for category, numbers in CATEGORIES:
         category_pages = [by_number[number] for number in numbers if number in by_number]
         if not category_pages:
             continue
-        parts.extend([f"### {category}", "", "::: {.notebook-list}", ""])
+        parts.extend([f"## {category}", "", "::: {.notebook-list}", ""])
         for page in category_pages:
             css_class = difficulty_class(page.difficulty)
             parts.extend([
                 f"::: {{.notebook-item .{css_class}}}",
-                f"#### [{page.number:02d}. {page.title}](../pytorch/notebooks/{page.page_filename})",
+                f"### [{page.number:02d}. {page.title}](../pytorch/notebooks/{page.page_filename})",
                 "",
                 f"`{page.difficulty}` · `{page.function_name or page.task_id}`",
                 "",
