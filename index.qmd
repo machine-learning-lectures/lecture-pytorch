@@ -48,88 +48,78 @@ Accessible palette
 
 ::: {.module-grid}
 ::: {.module-card}
-### 1. Intro to PyTorch
-Tensory, widoki, operacje wektorowe i gradienty.
+### Podstawy ML i PyTorch
+Tensory, gradienty, PCA, metryki, Isolation Forest oraz entropy/KL.
 
-[Otwórz lab](labs/lab-01-pytorch.qmd)
+[Otwórz moduł](materials/index.qmd#podstawy-ml-i-pytorch)
 :::
 
 ::: {.module-card}
-### 2. Backpropagation
-Ręczne gradienty dla mnożenia macierzy i weryfikacja autograd.
+### Modele generatywne
+Autoencoder, VAE, GAN, WGAN-GP i VQ-VAE jako osobny blok tematyczny.
 
-[Otwórz lab](labs/lab-02-backprop.qmd)
+[Otwórz moduł](materials/index.qmd#modele-generatywne)
 :::
 
 ::: {.module-card}
-### 3. PCA
-Centrowanie danych, SVD i wariancja wyjaśniona.
+### PyTorch w notebookach
+40 notebooków Jupyter przeniesionych do stron HTML do czytania krok po kroku.
 
-[Otwórz lab](labs/lab-03-pca.qmd)
+[Otwórz moduł](materials/index.qmd#pytorch-w-notebookach)
 :::
 
 ::: {.module-card}
-### 4. Metrics
-Precision, Recall i F-beta przy skrajnie niezbalansowanych klasach.
+### Fundamenty tensorów
+Operacje element-wise, softmax, warstwy liniowe, normalizacje, dropout i podstawy strat.
 
-[Otwórz lab](labs/lab-04-metrics.qmd)
+[Otwórz moduł](materials/index.qmd#fundamenty-tensorów)
 :::
 
 ::: {.module-card}
-### 5. Isolation Forest
-Izolowanie anomalii krótkimi ścieżkami w losowych drzewach.
+### Attention i Transformery
+Self-attention, MHA, causal mask, RoPE, KV cache, cross-attention i Flash Attention.
 
-[Otwórz lab](labs/lab-05-isolation-forest.qmd)
+[Otwórz moduł](materials/index.qmd#attention-i-transformery)
 :::
 
 ::: {.module-card}
-### 6. Entropy and KL
-Niepewność rozkładu i koszt użycia przybliżenia.
+### Architektura i adaptacja
+LoRA, ViT patch embedding, blok GPT-2 i Mixture of Experts.
 
-[Otwórz lab](labs/lab-06-entropy-kl.qmd)
+[Otwórz moduł](materials/index.qmd#architektura-i-adaptacja)
 :::
 
 ::: {.module-card}
-### 7. Autoencoder
-Bottleneck, rekonstrukcja i wykrywanie anomalii.
+### Trening i optymalizacja
+Adam, warmup, cosine scheduler oraz praktyczne elementy stabilnego treningu.
 
-[Otwórz lab](labs/lab-07-autoencoder.qmd)
+[Otwórz moduł](materials/index.qmd#trening-i-optymalizacja)
 :::
 
 ::: {.module-card}
-### 8. VAE
-Reparameterization trick, ELBO i generowanie próbek.
+### Inferencja i dekodowanie
+Top-k, top-p, beam search i speculative decoding.
 
-[Otwórz lab](labs/lab-08-vae.qmd)
+[Otwórz moduł](materials/index.qmd#inferencja-i-dekodowanie)
 :::
 
 ::: {.module-card}
-### 9. GAN
-Dwóch optymalizatorów: generator kontra dyskryminator.
+### Zaawansowane tematy
+BPE, INT8 quantization, DPO, GRPO i PPO clipped loss.
 
-[Otwórz lab](labs/lab-09-gan.qmd)
-:::
-
-::: {.module-card}
-### 10. WGAN-GP
-Wasserstein distance i gradient penalty.
-
-[Otwórz lab](labs/lab-10-wgan-gp.qmd)
-:::
-
-::: {.module-card}
-### 11. VQ-VAE
-Dyskretny kodbook, nearest neighbor i straight-through estimator.
-
-[Otwórz lab](labs/lab-11-vq-vae.qmd)
+[Otwórz moduł](materials/index.qmd#zaawansowane-tematy)
 :::
 :::
 :::
 
 ## Roadmap {#roadmap}
 
-1. **Infrastructure:** Quarto project, GitHub Actions deployment, style system and reproducible Python environment.
-2. **Podstawy:** labs 1-6 covering tensors, gradients, PCA, metrics, Isolation Forest and KL divergence.
-3. **Modele generatywne:** labs 7-11 covering AE, VAE, GAN, WGAN-GP and optional VQ-VAE.
-4. **Validation:** browser checks, code block review and readability checks across screen sizes.
-5. **PyTorch notebooks:** 40 notebooków Jupyter przeniesionych do czytelnych stron HTML z krokami, testami i rozwiązaniami do samokontroli.
+1. [Podstawy ML i PyTorch](materials/index.qmd#podstawy-ml-i-pytorch)
+2. [Modele generatywne](materials/index.qmd#modele-generatywne)
+3. [PyTorch w notebookach](materials/index.qmd#pytorch-w-notebookach)
+4. [Fundamenty tensorów](materials/index.qmd#fundamenty-tensorów)
+5. [Attention i Transformery](materials/index.qmd#attention-i-transformery)
+6. [Architektura i adaptacja](materials/index.qmd#architektura-i-adaptacja)
+7. [Trening i optymalizacja](materials/index.qmd#trening-i-optymalizacja)
+8. [Inferencja i dekodowanie](materials/index.qmd#inferencja-i-dekodowanie)
+9. [Zaawansowane tematy](materials/index.qmd#zaawansowane-tematy)
